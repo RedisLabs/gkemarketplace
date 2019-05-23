@@ -71,7 +71,7 @@ gcloud container clusters get-credentials "$CLUSTER" --zone "$ZONE"
 Clone this repo and the associated tools repo.
 
 ```shell
-git clone --recursive https://github.com/GoogleCloudPlatform/redis-enterprise-k8s-docs.git
+git clone  https://github.com/GoogleCloudPlatform/redis-enterprise-k8s-docs.git
 ```
 
 #### Install the Application resource definition
@@ -97,7 +97,7 @@ community. The source code can be found on
 Navigate to the `marketplace` directory:
 
 ```shell
-cd gcp-marketplace
+cd gcpmarketplace
 ```
 
 #### Configure the app with environment variables
@@ -107,7 +107,7 @@ Choose an instance name and
 for the app. In most cases, you can use the `default` namespace.
 
 ```shell
-export APP_INSTANCE_NAME=redis-1
+export APP_INSTANCE_NAME=redis-labs-1
 export NAMESPACE=default
 ```
 
@@ -128,8 +128,8 @@ export REDIS_ADMIN=admin@acme.com
 Set the CPU and Memory for nodes:
 
 ```shell
-export NODE_CPU=1000
-export NODE_MEM=1000
+export NODE_CPU="1000"
+export NODE_MEM="1"
 ```
 
 
@@ -137,7 +137,7 @@ Configure the container images:
 
 ```shell
 export IMAGE_REDIS=redislabs/operator:498_f987b08
-export IMAGE_UBBAGENT=us.gcr.io/proven-reality-226706/ubbagent
+export IMAGE_UBBAGENT=us.gcr.io/proven-reality-226706/ubbagent:1.9.1
 ```
 
 #### Create namespace in your Kubernetes cluster
