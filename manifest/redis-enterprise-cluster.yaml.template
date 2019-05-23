@@ -27,9 +27,9 @@ spec:
       imagePullPolicy: IfNotPresent
       env:
       - name: NODE_CPU
-        value: $NODE_CPU
+        value: "$NODE_CPU"
       - name: NODE_MEM
-        value: $NODE_MEM
+        value: "$NODE_MEM"
       - name: AGENT_CONFIG_FILE
         value: /etc/ubbagent/config.yaml
       - name: AGENT_LOCAL_PORT
