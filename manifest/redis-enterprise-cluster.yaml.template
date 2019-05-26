@@ -17,10 +17,6 @@ spec:
     requests:
       cpu: "${NODE_CPU}m"
       memory: ${NODE_MEM}Gi
-  redisEnterpriseImageSpec:
-    imagePullPolicy:  IfNotPresent
-    repository:       redislabs/redis
-    versionTag:       5.4.0-19
   sideContainersSpec:
     - name: ubbagent
       image: $IMAGE_UBBAGENT

@@ -29,7 +29,7 @@ rules:
 kind: ServiceAccount
 apiVersion: v1
 metadata:
-  name: $SERVICE_ACCOUNT
+  name: redis-enterprise-operator
 ---
 kind: RoleBinding
 apiVersion: rbac.authorization.k8s.io/v1

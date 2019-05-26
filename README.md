@@ -137,7 +137,7 @@ Configure the container images:
 
 ```shell
 export IMAGE_REDIS=redislabs/operator:498_f987b08
-export IMAGE_UBBAGENT=us.gcr.io/proven-reality-226706/ubbagent:1.9.1
+export IMAGE_UBBAGENT=gcr.io/proven-reality-226706/redislabs/ubbagent:1.9
 ```
 
 #### Create namespace in your Kubernetes cluster
