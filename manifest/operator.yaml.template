@@ -13,7 +13,7 @@ spec:
       labels:
         name: redis-enterprise-operator
     spec:
-      serviceAccount: redis-enterprise-operator
+      serviceAccount: $SERVICE_ACCOUNT
       containers:
         - name: redis-enterprise-operator
           image: redislabs/operator:498_f987b08

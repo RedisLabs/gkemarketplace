@@ -14,22 +14,19 @@ metadata:
   name: redis-enterprise-operator
   namespace: $NAMESPACE
 rules:
-- apiGroups: ["", "extensions", "apps", "rbac.authorization.k8s.io", "policy"]
+ServiceAccount- apiGroups: ["", "extensions", "apps", "rbac.authorization.k8s.io", "policy"]
   resources: ["*"]
   verbs: ["*"]
 - apiGroups:
   - app.redislabs.com
   resources: ["*"]
   verbs: ["*"]
-- apiGroups:
-  - route.openshift.io
-  resources: ["routes", "routes/custom-host"]
-  verbs: ["*"]
 ---
 kind: ServiceAccount
 apiVersion: v1
 metadata:
-  name: redis-enterprise-operator
+  name: $SERVICE_ACCOUNT
+  namespace: $NAMESPACE
 ---
 kind: RoleBinding
 apiVersion: rbac.authorization.k8s.io/v1
@@ -38,7 +35,7 @@ metadata:
   namespace: $NAMESPACE
 subjects:
 - kind: ServiceAccount
-  name: redis-enterprise-operator
+  name: $SERVICE_ACCOUNT
   namespace: $NAMESPACE
 roleRef:
   kind: Role
