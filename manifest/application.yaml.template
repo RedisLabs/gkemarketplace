@@ -34,3 +34,8 @@ spec:
   componentKinds:
   - group: apps/v1beta2
     kind: Deployment
+  - group: v1
+    kind: Service
+  - group: apps/v1beta2
+    kind: StatefulSet
+

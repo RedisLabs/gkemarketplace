@@ -14,7 +14,7 @@ metadata:
   name: redis-enterprise-operator
   namespace: $NAMESPACE
 rules:
-ServiceAccount- apiGroups: ["", "extensions", "apps", "rbac.authorization.k8s.io", "policy"]
+  apiGroups: ["", "extensions", "apps", "rbac.authorization.k8s.io", "policy"]
   resources: ["*"]
   verbs: ["*"]
 - apiGroups:
