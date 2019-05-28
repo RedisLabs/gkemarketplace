@@ -37,10 +37,10 @@ spec:
       - name: AGENT_ENCODED_KEY
         valueFrom:
           secretKeyRef:
-            name: "$reportingSecret"
+            name: "${APP_INSTANCE_NAME}-reporting-secret"
             key: reporting-key
       - name: AGENT_CONSUMER_ID
         valueFrom:
           secretKeyRef:
-            name: "$reportingSecret"
+            name: "${APP_INSTANCE_NAME}-reporting-secret"
             key: consumer-id
