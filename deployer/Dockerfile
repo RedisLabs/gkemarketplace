@@ -6,6 +6,9 @@ ADD schema.yaml /data/
 # Provide registry prefix and tag for default values for images.
 ARG REGISTRY=gcr.io/proven-reality-226706/redislabs
 ARG TAG=0.2.0
+
+# Replace the original deploy with our deploy.sh that installs crd as first stage
+ADD deployer/deploy.sh /bin/   
 RUN cat /data/schema.yaml \
     | env -i "REGISTRY=$REGISTRY" "TAG=$TAG" envsubst \
     > /data/schema.yaml.new \
