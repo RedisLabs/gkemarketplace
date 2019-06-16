@@ -74,8 +74,14 @@ create_manifests.sh
   --manifest "/data/resources.yaml" \
   --status "Pending"
 
-# Apply the CRD first
-kubectl apply --namespace="$NAMESPACE" --filename="/data/manifest-expanded/crd.yaml"
+
+echo "Admin Service Account = $SERVICE_ACCOUNT"
+# Put CRD in configmap so elvated Job can install it
+kubectl create configmap crd-cm --from-file=crd=/data/manifest-expanded/crd.yaml
+# Create elavated job to create Job
+envsubst < /bin/install-job.yaml.template > /bin/install-job.yaml
+cat /bin/install-job.yaml
+kubectl create -f /bin/install-job.yaml
 # Apply the manifest.
 kubectl apply --namespace="$NAMESPACE" --filename="/data/resources.yaml"
 
