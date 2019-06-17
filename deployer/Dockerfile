@@ -9,6 +9,9 @@ ARG TAG=0.2.0
 
 # Replace the original deploy with our deploy.sh that installs crd as first stage
 ADD deployer/deploy.sh /bin/   
+ADD deployer/install-job.yaml.template /bin/
+ADD deploy/crd.yaml /bin/
+
 RUN cat /data/schema.yaml \
     | env -i "REGISTRY=$REGISTRY" "TAG=$TAG" envsubst \
     > /data/schema.yaml.new \

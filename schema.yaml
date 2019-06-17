@@ -73,3 +73,10 @@ required:
 - IMAGE_UBBAGENT
 - NODE_CPU
 - NODE_MEM
+x-google-marketplace:
+  clusterConstraints:
+    resources:
+    - replicas: 3
+      requests:
+        cpu: 4000m
+        memory: 15Gi

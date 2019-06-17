@@ -12,7 +12,7 @@ spec:
       containers:
       - name: redis-installer
         image: gcr.io/cloud-marketplace-tools/k8s/deployer_envsubst:latest
-        command: ["/bin/bash", "-c", "kubectl create -f /data/crd.yaml"]
+        command: ["/bin/bash", "-c", "kubectl apply --force=true -f /data/crd.yaml"]
         imagePullPolicy: Always
         volumeMounts:
           - name: config-volume

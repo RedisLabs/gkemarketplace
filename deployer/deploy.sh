@@ -77,12 +77,20 @@ create_manifests.sh
 
 echo "Admin Service Account = $SERVICE_ACCOUNT"
 # Put CRD in configmap so elvated Job can install it
-kubectl create configmap crd-cm --from-file=crd=/data/manifest-expanded/crd.yaml
+kubectl create configmap crd-cm --from-file=crd=/bin/crd.yaml
 # Create elavated job to create Job
 envsubst < /bin/install-job.yaml.template > /bin/install-job.yaml
 cat /bin/install-job.yaml
 kubectl create -f /bin/install-job.yaml
-# Apply the manifest.
+# Wait for CRD job to finish and be available and then Apply the manifest.
+sleep 10
+CRDREADY=`kubectl get job redis-crd-installer  -o jsonpath="{.status.succeeded}"`
+while [[ ${CRDREADY}  != 1 ]] ; do
+  echo waiting for CRD job to complete
+  sleep 2
+  CRDREADY=`kubectl get job redis-crd-installer  -o jsonpath="{.status.succeeded}"`
+done
+
 kubectl apply --namespace="$NAMESPACE" --filename="/data/resources.yaml"
 
 patch_assembly_phase.sh --status="Success"
