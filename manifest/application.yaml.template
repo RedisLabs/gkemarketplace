@@ -38,4 +38,6 @@ spec:
     kind: Service
   - group: apps/v1beta2
     kind: StatefulSet
+  - group: batch/v1
+    kind: Job
 
