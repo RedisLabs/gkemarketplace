@@ -15,16 +15,15 @@ spec:
     version: alpha
     description: |-
       Redis Operator makes it easy to deploy and manage Redis Enterprise on Kubernetes.
-  
       # Support
       Google does not offer support for this solution. However, community support is available on
       [Stack Overflow](https://stackoverflow.com/questions/tagged/redis-enterprise/).
     maintainers:
-    - name: Google Click to Deploy
-      url: https://cloud.google.com/solutions/#click-to-deploy
+      - name: Google Click to Deploy
+        url: https://cloud.google.com/solutions/#click-to-deploy
     links:
-    - description: 'User Guide: Redis Enterprise'
-      url: https://support.redislabs.com
+      - description: 'User Guide: Redis Enterprise'
+        url: https://support.redislabs.com
     notes: |-
       Follow [examples](https://github.com/GoogleCloudPlatform/click-to-deploy/blob/master/k8s/redis-enterprise-operator/README.md#using-redis-enterprise-operator) to deploy your redis clusters.
 
@@ -32,12 +31,15 @@ spec:
     matchLabels:
       app.kubernetes.io/name: "$APP_INSTANCE_NAME"
   componentKinds:
-  - group: apps/v1beta2
-    kind: Deployment
-  - group: v1
-    kind: Service
-  - group: apps/v1beta2
-    kind: StatefulSet
-  - group: batch/v1
-    kind: Job
-
+    - group: apps/v1beta2
+      kind: Deployment
+    - group: v1
+      kind: Service
+    - group: apps/v1beta2
+      kind: StatefulSet
+    - group: batch/v1
+      kind: Job
+    - group: v1
+      kind: Service
+    - group: v1
+      kind: ServiceAccount
