@@ -48,6 +48,14 @@ NAMESPACE="$(/bin/print_config.py \
 export NAME
 export NAMESPACE
 
+echo "Checking other deployments" 
+
+PREV_DEPLOY=$(kubectl get RedisEnterpriseCluster --all-namespaces -o name)
+if [[ ! -z "$PREV_DEPLOY" ]]; then 
+  echo "Cannot deploy, there is a redis operator already running in the cluster"
+  exit $?
+fi 
+
 echo "Deploying application \"$NAME\""
 
 app_uid=$(kubectl get "applications.app.k8s.io/$NAME" \
