@@ -49,10 +49,10 @@ export NAME
 export NAMESPACE
 
 echo "Checking other deployments" 
-
-PREV_DEPLOY=$(kubectl get RedisEnterpriseCluster --all-namespaces -o name)
+# make sure the operator is not deployed in this namespace and if it does fail the deployment
+PREV_DEPLOY=$(kubectl get deploy redis-enterprise-operator --n $NAMESPACE -o name || true)
 if [[ ! -z "$PREV_DEPLOY" ]]; then 
-  echo "Cannot deploy, there is a redis operator already running in the cluster"
+  echo "Cannot deploy, there is a redis operator already running in namespace $NAMESPACE"
   exit $?
 fi 
 
