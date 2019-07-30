@@ -3,6 +3,8 @@ kind: "RedisEnterpriseCluster"
 metadata:
   name: "redis-enterprise"
   namespace: $NAMESPACE
+  labels:
+    app.kubernetes.io/name: "$APP_INSTANCE_NAME"
 spec:
   nodes: $REPLICAS
   persistentSpec:

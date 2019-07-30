@@ -3,6 +3,8 @@ kind: Deployment
 metadata:
   name: redis-enterprise-operator
   namespace: $NAMESPACE
+  labels:
+    app.kubernetes.io/name: "$APP_INSTANCE_NAME"
 spec:
   replicas: 1
   selector:
@@ -18,7 +20,7 @@ spec:
         - name: redis-enterprise-operator
           image: redislabs/operator:498_f987b08
           command:
-          - redis-enterprise-operator
+            - redis-enterprise-operator
           imagePullPolicy: Always
           env:
             - name: WATCH_NAMESPACE
