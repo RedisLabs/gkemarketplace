@@ -10,7 +10,7 @@ properties:
       type: NAMESPACE
   IMAGE_REDIS:
     type: string
-    default: $REGISTRY:$TAG
+    default: gcr.io/proven-reality-226706/redislabs/operator
     x-google-marketplace:
       type: IMAGE
   SERVICE_ACCOUNT:
@@ -38,6 +38,8 @@ properties:
     type: string
     title: Redis admin username
     description: Username to be used for connecting to Redis
+    # https://www.w3.org/TR/html52/sec-forms.html#email-state-typeemail
+    pattern: ^[a-zA-Z0-9.!#$%&'*+\/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$
     default: admin@example.com
   IMAGE_UBBAGENT:
     type: string
@@ -49,14 +51,14 @@ properties:
     x-google-marketplace:
       type: REPORTING_SECRET
   NODE_CPU:
-    title: Node CPU
+    title: Node CPU [millis]
     type: integer
     description: Each node CPU in millicpu i.e. 1000 equals 1vCPU
     default: 4000 
     minimum: 100
     maximum: 32000
   NODE_MEM:
-    title: Node Memory
+    title: Node Memory [GB]
     type: integer
     description: Each node RAM in GB ie 1 equals 1GiB
     default: 15
