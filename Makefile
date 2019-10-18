@@ -18,8 +18,9 @@ ifdef METRICS_EXPORTER_ENABLED
 endif
 
 APP_PARAMETERS ?= { \
-  "name": "$(NAME)", \
-  "namespace": "$(NAMESPACE)" \
+  "APP_INSTANCE_NAME": "$(NAME)", \
+  "NAMESPACE": "$(NAMESPACE)", \
+  "REPORTING_SECRET": "test-value" \
   $(METRICS_EXPORTER_ENABLED_FIELD) \
 }
 
