@@ -10,7 +10,7 @@ properties:
       type: NAMESPACE
   IMAGE_REDIS:
     type: string
-    default: gcr.io/proven-reality-226706/redislabs/operator
+    default: $REGISTRY:$TAG
     x-google-marketplace:
       type: IMAGE
   SERVICE_ACCOUNT:
@@ -43,7 +43,7 @@ properties:
     default: admin@example.com
   IMAGE_UBBAGENT:
     type: string
-    default: gcr.io/proven-reality-226706/redislabs/ubbagent:1.9
+    default: $REGISTRY/ubbagent:$TAG
     x-google-marketplace:
       type: IMAGE
   REPORTING_SECRET:
