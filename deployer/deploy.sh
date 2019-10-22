@@ -82,6 +82,9 @@ create_manifests.sh
   --manifest "/data/resources.yaml" \
   --status "Pending"
 
+export SERVICE_ACCOUNT="$(/bin/print_config.py \
+    --xtype SERVICE_ACCOUNT \
+    --values_mode raw)"
 
 echo "Admin Service Account = $SERVICE_ACCOUNT"
 # Put CRD in configmap so elvated Job can install it
@@ -99,6 +102,7 @@ while [[ ${CRDREADY}  != 1 ]] ; do
   CRDREADY=`kubectl get job redis-crd-installer  -o jsonpath="{.status.succeeded}"`
 done
 
+# Apply the manifest.
 kubectl apply --namespace="$NAMESPACE" --filename="/data/resources.yaml"
 
 patch_assembly_phase.sh --status="Success"
