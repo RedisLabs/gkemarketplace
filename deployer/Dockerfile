@@ -8,7 +8,8 @@ ARG REGISTRY=gcr.io/proven-reality-226706/redislabs
 ARG TAG=0.2.0
 
 # Replace the original deploy with our deploy.sh that installs crd as first stage
-ADD deployer/deploy.sh /bin/   
+ADD deployer/deploy.sh /bin/
+ADD deployer/deploy_with_tests.sh /bin/
 ADD deployer/install-job.yaml.template /bin/
 ADD deployer/crd.yaml /bin/
 

@@ -16,7 +16,7 @@
 
 set -eox pipefail
 
-# This is the entry point for the production deployment
+# This is the entry point for the test deployment
 
 # If any command returns with non-zero exit code, set -e will cause the script
 # to exit. Prior to exit, set App assembly status to "Failed".
@@ -39,6 +39,13 @@ handle_failure() {
 }
 trap "handle_failure" EXIT
 
+LOG_SMOKE_TEST="SMOKE_TEST"
+test_schema="/data-test/schema.yaml"
+overlay_test_schema.py \
+  --test_schema "$test_schema" \
+  --original_schema "/data/schema.yaml" \
+  --output "/data/schema.yaml"
+
 NAME="$(/bin/print_config.py \
     --xtype NAME \
     --values_mode raw)"
@@ -54,9 +61,9 @@ PREV_DEPLOY=$(kubectl get deploy redis-enterprise-operator --n $NAMESPACE -o nam
 if [[ ! -z "$PREV_DEPLOY" ]]; then 
   echo "Cannot deploy, there is a redis operator already running in namespace $NAMESPACE"
   exit $?
-fi 
+fi
 
-echo "Deploying application \"$NAME\""
+echo "Deploying application \"$NAME\" in test mode"
 
 app_uid=$(kubectl get "applications.app.k8s.io/$NAME" \
   --namespace="$NAMESPACE" \
@@ -67,7 +74,7 @@ app_api_version=$(kubectl get "applications.app.k8s.io/$NAME" \
 
 /bin/expand_config.py --values_mode raw --app_uid "$app_uid"
 
-create_manifests.sh
+create_manifests.sh --mode="test"
 
 # Assign owner references for the resources.
 /bin/set_ownership.py \
@@ -77,10 +84,13 @@ create_manifests.sh
   --manifests "/data/manifest-expanded" \
   --dest "/data/resources.yaml"
 
-# Ensure assembly phase is "Pending", until successful kubectl apply.
-/bin/setassemblyphase.py \
-  --manifest "/data/resources.yaml" \
-  --status "Pending"
+separate_tester_resources.py \
+  --app_uid "$app_uid" \
+  --app_name "$NAME" \
+  --app_api_version "$app_api_version" \
+  --manifests "/data/resources.yaml" \
+  --out_manifests "/data/resources.yaml" \
+  --out_test_manifests "/data/tester.yaml"
 
 export SERVICE_ACCOUNT="$(/bin/print_config.py \
     --xtype SERVICE_ACCOUNT \
@@ -106,6 +116,23 @@ done
 kubectl apply --namespace="$NAMESPACE" --filename="/data/resources.yaml"
 
 patch_assembly_phase.sh --status="Success"
+
+wait_for_ready.py \
+  --name $NAME \
+  --namespace $NAMESPACE \
+  --timeout ${WAIT_FOR_READY_TIMEOUT:-300}
+
+tester_manifest="/data/tester.yaml"
+if [[ -e "$tester_manifest" ]]; then
+  cat $tester_manifest
+
+  run_tester.py \
+    --namespace $NAMESPACE \
+    --manifest $tester_manifest \
+    --timeout ${TESTER_TIMEOUT:-300}
+else
+  echo "$LOG_SMOKE_TEST No tester manifest found at $tester_manifest."
+fi
 
 clean_iam_resources.sh
 
