@@ -97,7 +97,7 @@ community. The source code can be found on
 Navigate to the `marketplace` directory:
 
 ```shell
-cd gcpmarketplace
+cd gkemarketplace
 ```
 
 #### Configure the app with environment variables
