@@ -175,7 +175,7 @@ expanded manifest file for future updates to the application.
     # Define name of service account
     export SERVICE_ACCOUNT=redis-enterprise-operator
     # Expand rbac.yaml.template
-    envsubst '$APP_INSTANCE_NAME $NAMESPACE $SERVICE_ACCOUNT' < scripts/rbac.yaml.template > "${APP_INSTANCE_NAME}_rbac.yaml"
+    envsubst '$APP_INSTANCE_NAME $NAMESPACE $SERVICE_ACCOUNT' < manifest/rbac.yaml.template > "${APP_INSTANCE_NAME}_rbac.yaml"
     ```
 
 1. Expand `Application`/`crd`/`operator`/`ConfigMap` YAML files.
