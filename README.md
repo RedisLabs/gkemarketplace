@@ -94,7 +94,7 @@ community. The source code can be found on
 
 ### Install the Application
 
-Navigate to the `marketplace` directory:
+Navigate to the `gkemarketplace` directory:
 
 ```shell
 cd gkemarketplace
@@ -186,6 +186,8 @@ expanded manifest file for future updates to the application.
      | envsubst '$APP_INSTANCE_NAME $NAMESPACE $IMAGE_REDIS $REPLICAS $REDIS_ADMIN $SERVICE_ACCOUNT $IMAGE_UBBAGENT $NODE_CPU $NODE_MEM' \
      > "${APP_INSTANCE_NAME}_manifest.yaml"
     ```
+#### Supply secrets
+This entire process will not work unless you provide the secrets.
 
 #### Apply the manifest to your Kubernetes cluster
 
@@ -195,7 +197,9 @@ Use `kubectl` to apply the manifest to your Kubernetes cluster:
 # rbac.yaml
 kubectl apply -f "${APP_INSTANCE_NAME}_rbac.yaml" --namespace "${NAMESPACE}"
 
+ 
 # Custom Resource Definition
+ 
 kubectl apply -f deployer/crd.yaml
 
 # manifest.yaml
