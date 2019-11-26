@@ -56,8 +56,8 @@ app/build:: .build/redislabs/deployer \
 .build/redislabs/redislabs: .build/var/REGISTRY \
                             .build/var/TAG \
                             | .build/redislabs
-	docker pull redislabs/operator:5.4.6-1186
-	docker tag  redislabs/operator:5.4.6-1186 \
+	docker pull redislabs/operator:5.4.6-1183
+	docker tag  redislabs/operator:5.4.6-1183 \
 	    "$(REGISTRY)/redislabs:$(TAG)"
 	docker push "$(REGISTRY)/redislabs:$(TAG)"
 	@touch "$@"

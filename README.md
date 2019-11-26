@@ -136,7 +136,7 @@ export NODE_MEM=1
 Configure the container images:
 
 ```shell
-export IMAGE_REDIS=redislabs/operator:5.4.6-1186
+export IMAGE_REDIS=redislabs/operator:5.4.6-1183
 export IMAGE_UBBAGENT=gcr.io/proven-reality-226706/redislabs/ubbagent:1.9
 ```
 
