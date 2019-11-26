@@ -174,6 +174,7 @@ expanded manifest file for future updates to the application.
     ```shell
     # Define name of service account
     export SERVICE_ACCOUNT=redis-enterprise-operator
+   
     # Expand rbac.yaml.template
     envsubst '$APP_INSTANCE_NAME $NAMESPACE $SERVICE_ACCOUNT' < manifest/rbac.yaml.template > "${APP_INSTANCE_NAME}_rbac.yaml"
     ```
@@ -193,6 +194,10 @@ Use `kubectl` to apply the manifest to your Kubernetes cluster:
 ```shell
 # rbac.yaml
 kubectl apply -f "${APP_INSTANCE_NAME}_rbac.yaml" --namespace "${NAMESPACE}"
+
+# Custom Resource Definition
+kubectl apply -f deployer/crd.yaml
+
 # manifest.yaml
 kubectl apply -f "${APP_INSTANCE_NAME}_manifest.yaml" --namespace "${NAMESPACE}"
 ```
