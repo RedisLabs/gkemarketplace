@@ -71,7 +71,7 @@ gcloud container clusters get-credentials "$CLUSTER" --zone "$ZONE"
 Clone this repo and the associated tools repo.
 
 ```shell
-git clone  https://github.com/GoogleCloudPlatform/redis-enterprise-k8s-docs.git
+git clone  https://github.com/RedisLabs/redis-enterprise-k8s-docs.git
 ```
 
 #### Install the Application resource definition
@@ -97,7 +97,7 @@ community. The source code can be found on
 Navigate to the `gkemarketplace` directory:
 
 ```shell
-cd gcpmarketplace
+cd gkemarketplace
 ```
 
 #### Configure the app with environment variables
@@ -174,8 +174,9 @@ expanded manifest file for future updates to the application.
     ```shell
     # Define name of service account
     export SERVICE_ACCOUNT=redis-enterprise-operator
+   
     # Expand rbac.yaml.template
-    envsubst '$APP_INSTANCE_NAME $NAMESPACE $SERVICE_ACCOUNT' < scripts/rbac.yaml.template > "${APP_INSTANCE_NAME}_rbac.yaml"
+    envsubst '$APP_INSTANCE_NAME $NAMESPACE $SERVICE_ACCOUNT' < manifest/rbac.yaml.template > "${APP_INSTANCE_NAME}_rbac.yaml"
     ```
 
 1. Expand `Application`/`crd`/`operator`/`ConfigMap` YAML files.
@@ -196,6 +197,9 @@ Use `kubectl` to apply the manifest to your Kubernetes cluster:
 # rbac.yaml
 kubectl apply -f "${APP_INSTANCE_NAME}_rbac.yaml" --namespace "${NAMESPACE}"
 
+ 
+# Custom Resource Definition
+ 
 kubectl apply -f deployer/crd.yaml
 
 # manifest.yaml
