@@ -132,10 +132,10 @@ export NODE_MEM=1
 ```
 
 
-Configure the container images:
+Configure the container images. Note that these version numbers might not be up to date.
 
 ```shell
-export IMAGE_REDIS=redislabs/operator:498_f987b08
+export IMAGE_REDIS=gcr.io/proven-reality-226706/redislabs:1.10
 export IMAGE_UBBAGENT=gcr.io/proven-reality-226706/redislabs/ubbagent:1.9
 ```
 
