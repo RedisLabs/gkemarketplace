@@ -71,7 +71,7 @@ gcloud container clusters get-credentials "$CLUSTER" --zone "$ZONE"
 Clone this repo and the associated tools repo.
 
 ```shell
-git clone  https://github.com/GoogleCloudPlatform/redis-enterprise-k8s-docs.git
+git clone  https://github.com/RedisLabs/redis-enterprise-k8s-docs.git
 ```
 
 #### Install the Application resource definition
