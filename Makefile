@@ -4,7 +4,7 @@ include helper/gcloud.Makefile
 include helper/var.Makefile
 
 
-TAG ?= 1.9
+TAG ?= 1.10
 REGISTRY ?= gcr.io/proven-reality-226706
 METRICS_EXPORTER_TAG ?= v0.7.1
 
@@ -56,8 +56,8 @@ app/build:: .build/redislabs/deployer \
 .build/redislabs/redislabs: .build/var/REGISTRY \
                             .build/var/TAG \
                             | .build/redislabs
-	docker pull redislabs/operator:498_f987b08
-	docker tag  redislabs/operator:498_f987b08 \
+	docker pull redislabs/operator:5.4.6-1183
+	docker tag  redislabs/operator:5.4.6-1183 \
 	    "$(REGISTRY)/redislabs:$(TAG)"
 	docker push "$(REGISTRY)/redislabs:$(TAG)"
 	@touch "$@"
