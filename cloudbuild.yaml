@@ -1,0 +1,20 @@
+steps:
+- name: 'gcr.io/cloud-builders/docker'
+  args: ['build', '--build-arg', 'REGISTRY=gcr.io/proven-reality-226706/redislabs', '--build-arg', 'TAG="1.10"' , '--build-arg', 'MARKETPLACE_TOOLS_TAG="0.7.9"', '--tag', 'gcr.io/proven-reality-226706/redislabs/deployer:1.10', '-f', 'deployer/Dockerfile', '.']
+
+- name: 'gcr.io/cloud-builders/docker'
+  args: ['push', 'gcr.io/proven-reality-226706/redislabs/deployer:1.10']
+
+- name: 'gcr.io/cloud-builders/docker'
+  args: ['pull', 'redislabs/operator:5.4.6-1183']
+
+# point from source to target
+- name: 'gcr.io/cloud-builders/docker'
+  args: ['tag', 'redislabs/operator:5.4.6-1183', 'gcr.io/proven-reality-226706/redislabs/deployer:1.10']
+
+# my image is pushed to Container Registry
+images: [ 'gcr.io/proven-reality-226706/redislabs:1.10']
+
+
+options:
+  substitution_option: 'ALLOW_LOOSE'
