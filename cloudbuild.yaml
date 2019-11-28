@@ -10,7 +10,7 @@ steps:
 
 # point from source to target
 - name: 'gcr.io/cloud-builders/docker'
-  args: ['tag', 'redislabs/operator:5.4.6-1183', 'gcr.io/proven-reality-226706/redislabs/deployer:1.10']
+  args: ['tag', 'redislabs/operator:5.4.6-1183', 'gcr.io/proven-reality-226706/redislabs:1.10']
 
 # my image is pushed to Container Registry
 images: [ 'gcr.io/proven-reality-226706/redislabs:1.10']
