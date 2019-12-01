@@ -5,8 +5,8 @@ steps:
   args:
   - '-c'
   - |
-    export newver=`echo $TAG_NAME | cut -d" " -f 1`
-    export opver=`echo $TAG_NAME | cut -d" " -f 2`
+    export newver=`echo "$TAG_NAME" | cut -d"<" -f 1`
+    export opver=`echo "$TAG_NAME"| cut -d"<" -f 2`
     echo  'new version' $newver 'from' $opver
     docker build --build-arg REGISTRY=gcr.io/${PROJECT_ID}/redislabs --build-arg TAG=${newver} --build-arg MARKETPLACE_TOOLS_TAG="0.7.9" --tag gcr.io/${PROJECT_ID}/redislabs/deployer:${newver} -f deployer/Dockerfile .
     docker push gcr.io/${PROJECT_ID}/redislabs/deployer:${newver}
