@@ -6,7 +6,7 @@ steps:
   - '-c'
   - |
     echo 'iALLINREPO--------'
-    docker image ls -a gcr.io/proven-reality-226706/redislabs/deployer  
+    docker image ls -a "gcr.io/${PROJECT_ID}/redislabs/deployer"
     echo '-------REPO'
     export maxver=`docker image ls gcr.io/${PROJECT_ID}/redislabs/deployer  | tr -s " " | cut -d" " -f 2 | tail -n +2 |   grep -o "1\.[0-9][0-9]*" | cut -d"." -f2 | sort -n -r | head -n 1`
     export newver=`echo "1.$(($maxver +1 ))"`
