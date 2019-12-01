@@ -1,20 +1,22 @@
 steps:
-- name: 'gcr.io/cloud-builders/docker'
-  args: ['build', '--build-arg', 'REGISTRY=gcr.io/proven-reality-226706/redislabs', '--build-arg', 'TAG="${TAG_NAME}"' , '--build-arg', 'MARKETPLACE_TOOLS_TAG="0.7.9"', '--tag', 'gcr.io/proven-reality-226706/redislabs/deployer:${TAG_NAME}', '-f', 'deployer/Dockerfile', '.']
+- name: gcr.io/cloud-builders/docker
+  id: docker-build-push
+  entrypoint: bash
+  args:
+  - '-c'
+  - |
+    export maxver=`docker image ls gcr.io/proven-reality-226706/redislabs/deployer  | tr -s " "|cut -d" " -f 2 |tail -n +2 |   grep -o "1\.[0-9][0-9]*" |cut -d"." -f2|sort -n -r |head -n 1  `
+    export newver=`echo "1.$(($maxver +1 ))"`
+    echo $newver 'from' $maxver
+    docker build --build-arg REGISTRY=gcr.io/${PROJECT_ID}/redislabs --build-arg TAG=${newver} --build-arg MARKETPLACE_TOOLS_TAG="0.7.9" --tag gcr.io/${PROJECT_ID}/redislabs/deployer:${newver} -f deployer/Dockerfile .
+    docker push gcr.io/${PROJECT_ID}/redislabs/deployer:${newver}
+    docker pull redislabs/operator:${_OP_VERSION}
+    docker tag redislabs/operator:${_OP_VERSION} gcr.io/${PROJECT_ID}/redislabs:${newver}
+    docker push gcr.io/${PROJECT_ID}/redislabs:${newver}
 
-- name: 'gcr.io/cloud-builders/docker'
-  args: ['push', 'gcr.io/proven-reality-226706/redislabs/deployer:${TAG_NAME}']
 
-- name: 'gcr.io/cloud-builders/docker'
-  args: ['pull', 'redislabs/operator:5.4.6-1183']
-
-# point from source to target
-- name: 'gcr.io/cloud-builders/docker'
-  args: ['tag', 'redislabs/operator:5.4.6-1183', 'gcr.io/proven-reality-226706/redislabs:${TAG_NAME}']
-
-# my image is pushed to Container Registry
-images: [ 'gcr.io/proven-reality-226706/redislabs:${TAG_NAME}']
-
+substitutions:
+  _OP_VERSION: "5.4.6-1183"
 
 options:
   substitution_option: 'ALLOW_LOOSE'
