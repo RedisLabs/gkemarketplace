@@ -5,16 +5,13 @@ steps:
   args:
   - '-c'
   - |
-    echo 'iALLINREPO--------'
-    docker image ls -a "gcr.io/${PROJECT_ID}/redislabs/deployer"
-    echo '-------REPO'
-    export maxver=`docker image ls gcr.io/${PROJECT_ID}/redislabs/deployer  | tr -s " " | cut -d" " -f 2 | tail -n +2 |   grep -o "1\.[0-9][0-9]*" | cut -d"." -f2 | sort -n -r | head -n 1`
-    export newver=`echo "1.$(($maxver +1 ))"`
-    echo  'new version' $newver 'from' $maxver
+    export newver=`echo $TAG_NAME | cut -d" " -f 1`
+    export opver=`echo $TAG_NAME | cut -d" " -f 2`
+    echo  'new version' $newver 'from' $opver
     docker build --build-arg REGISTRY=gcr.io/${PROJECT_ID}/redislabs --build-arg TAG=${newver} --build-arg MARKETPLACE_TOOLS_TAG="0.7.9" --tag gcr.io/${PROJECT_ID}/redislabs/deployer:${newver} -f deployer/Dockerfile .
     docker push gcr.io/${PROJECT_ID}/redislabs/deployer:${newver}
-    docker pull redislabs/operator:${TAG_NAME}
-    docker tag redislabs/operator:${TAG_NAME} gcr.io/${PROJECT_ID}/redislabs:${newver}
+    docker pull redislabs/operator:$opver
+    docker tag redislabs/operator:$opver gcr.io/${PROJECT_ID}/redislabs:${newver}
     docker push gcr.io/${PROJECT_ID}/redislabs:${newver}
 
 options:
