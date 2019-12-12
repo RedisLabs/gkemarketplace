@@ -10,7 +10,7 @@ spec:
   persistentSpec:
     enabled: true
     storageClassName: "standard"
-  uiServiceType: LoadBalancer
+  uiServiceType: ${UI_SERVICE_TYPE}
   username: $REDIS_ADMIN
   redisEnterpriseNodeResources:
     limits:
