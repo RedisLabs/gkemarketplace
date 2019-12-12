@@ -92,7 +92,7 @@ echo "Admin Service Account = $SERVICE_ACCOUNT"
 shopt -s nocasematch
 case "$INGRESS_AVAILABLE" in
 	 "true"  ) export UI_SERVICE=LoadBalancer ;;
-          *)  export UI_SERVICE=LoadBalancer ;;
+          *)  export UI_SERVICE=ClusterIP  ;;
 esac
 
 # Put CRD in configmap so elvated Job can install it
