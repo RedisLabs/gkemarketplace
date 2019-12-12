@@ -46,6 +46,12 @@ properties:
     default: $REGISTRY/ubbagent:$TAG
     x-google-marketplace:
       type: IMAGE
+  INGRESS_AVAILABLE:
+    type: string
+    title: Ingress Supported
+    description: Indicates whether the cluster is detected to have Ingress support.
+    x-google-marketplace:
+      type: INGRESS_AVAILABLE
   REPORTING_SECRET:
     type: string
     x-google-marketplace:
