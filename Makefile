@@ -4,7 +4,7 @@ include helper/gcloud.Makefile
 include helper/var.Makefile
 
 OP_VERSION=5.4.6-1186
-TAG ?= 1.11.0
+TAG ?= 1.11
 REGISTRY ?= gcr.io/proven-reality-226706
 METRICS_EXPORTER_TAG ?= v0.7.1
 
