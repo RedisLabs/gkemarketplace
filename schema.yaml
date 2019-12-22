@@ -47,7 +47,7 @@ properties:
     x-google-marketplace:
       type: IMAGE
   INGRESS_AVAILABLE:
-    type: string
+    type: boolean
     title: Ingress Supported
     description: Indicates whether the cluster is detected to have Ingress support.
     x-google-marketplace:
