@@ -132,8 +132,15 @@ export NODE_MEM=1
 Configure the container images. Update version numbers as necessary.
 
 ```shell
-export IMAGE_REDIS=gcr.io/proven-reality-226706/redislabs:1.11
-export IMAGE_UBBAGENT=gcr.io/proven-reality-226706/redislabs/ubbagent:1.11
+export IMAGE_REDIS=gcr.io/proven-reality-226706/redislabs:$VERSION
+export IMAGE_UBBAGENT=gcr.io/proven-reality-226706/redislabs/ubbagent:$VERSION
+```
+Set the version
+
+**Note**: Do not use a patch number like 1.12.0; use only major-minor.
+
+```shell
+export VERSION=<MAJOR-MINOR VERSION NUMBER>
 ```
 
 #### Create namespace in your Kubernetes cluster
@@ -176,7 +183,7 @@ expanded manifest file for future updates to the application.
 
     ```shell
      awk 'FNR==1 {print "---"}{print}' manifest/* \
-     | envsubst '$APP_INSTANCE_NAME $NAMESPACE $IMAGE_REDIS $REPLICAS $REDIS_ADMIN $SERVICE_ACCOUNT $IMAGE_UBBAGENT $NODE_CPU $NODE_MEM' \
+     | envsubst '$APP_INSTANCE_NAME $NAMESPACE $IMAGE_REDIS $REPLICAS $REDIS_ADMIN $SERVICE_ACCOUNT $TAG $IMAGE_UBBAGENT $NODE_CPU $NODE_MEM' \
      > "${APP_INSTANCE_NAME}_manifest.yaml"
     ```
 
@@ -299,8 +306,7 @@ gcloud container clusters delete "$CLUSTER" --zone "$ZONE"
 When a few version of the Redis Operator comes out, you will want to upgrade the version. 
 
 1. Upgrade `OP_VERSION=5.4.6-1186` in `Makefile`.
-2. Increment `Makefile:TAG ?= 1.11` in `Makefile`. This will increment  the version of both this Marketplace package and the UBB image that provides the sidecar.
-**Note**: Do not use a patch number like 1.12.0; use only major-minor.
+2. Increment `Makefile:TAG ?= $VERSION` in `Makefile`. This will increment  the version of both this Marketplace package and the UBB image that provides the sidecar.
 3. `make -B app/build`  (where `-B` forces the build even if no change is detected).
    * This builds the image and pushes it to gcr.io
 
