@@ -10,7 +10,7 @@ spec:
   persistentSpec:
     enabled: true
     storageClassName: "standard"
-  uiServiceType: ${UI_SERVICE_TYPE}
+  uiServiceType: ${UI_SERVICE}
   username: $REDIS_ADMIN
   redisEnterpriseNodeResources:
     limits:
