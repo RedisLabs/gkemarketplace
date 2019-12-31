@@ -65,6 +65,12 @@ app_api_version=$(kubectl get "applications.app.k8s.io/$NAME" \
   --namespace="$NAMESPACE" \
   --output=jsonpath='{.apiVersion}')
 
+shopt -s nocasematch
+case "$INGRESS_AVAILABLE" in
+	 "true"  ) export UI_SERVICE=LoadBalancer ;;
+          *)  export UI_SERVICE=ClusterIP  ;;
+esac
+
 /bin/expand_config.py --values_mode raw --app_uid "$app_uid"
 
 create_manifests.sh
@@ -88,12 +94,6 @@ export SERVICE_ACCOUNT="$(/bin/print_config.py \
 
 echo "Admin Service Account = $SERVICE_ACCOUNT"
 
-
-shopt -s nocasematch
-case "$INGRESS_AVAILABLE" in
-	 "true"  ) export UI_SERVICE=LoadBalancer ;;
-          *)  export UI_SERVICE=ClusterIP  ;;
-esac
 
 # Put CRD in configmap so elvated Job can install it
 kubectl create configmap crd-cm --from-file=crd=/bin/crd.yaml
