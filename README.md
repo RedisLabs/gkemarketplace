@@ -218,7 +218,9 @@ kubectl port-forward redis-enterprise-cluster-0 8443
 
 #### Getting the Admin Password
 
-See [instructions here](https://docs.redislabs.com/latest/rs/faqs/).
+See [instructions here](https://docs.redislabs.com/latest/rs/faqs/) under "How to retrieve the username/password for a Redis Enterprise Cluster?"
+
+In brief, `kubectl get secret redis-enterprise -o yaml|grep password|cut -d':' -f 2|base64 --decode` should get you the password, and you should already know the username (default admin@example.com)
 
 ####  Access the Redis-Enterprise service externally
 
