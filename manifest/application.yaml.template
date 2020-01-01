@@ -12,7 +12,7 @@ metadata:
 spec:
   descriptor:
     type: Redis Enterprise Operator
-    version: 1.13
+    version: 1.14
     description: |-
       Redis Operator makes it easy to deploy and manage Redis Enterprise on Kubernetes.
     maintainers:
