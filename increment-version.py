@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
-
+# This increments the version number in two files. This will no be necessary once
+# CI is set up wih variable replacement
 import re
 import os
 import sys
@@ -33,6 +34,7 @@ def update(fn, start):
     os.replace(fn + "next", fn)
 
     return old_v
+
 old_v = update("Makefile", "TAG ?= ")
 old_v2= update("manifest/application.yaml.template", "    version: ")
 assert  old_v==old_v2, f"The input files had different versions before this script ran; please revert and fix:{old_v} != {old_v2} "
