@@ -93,8 +93,6 @@ export SERVICE_ACCOUNT="$(/bin/print_config.py \
     --values_mode raw)"
 
 echo "Admin Service Account = $SERVICE_ACCOUNT"
-
-
 # Put CRD in configmap so elvated Job can install it
 kubectl create configmap crd-cm --from-file=crd=/bin/crd.yaml
 # Create elavated job to create Job
