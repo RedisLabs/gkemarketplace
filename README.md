@@ -72,11 +72,15 @@ gcloud container clusters get-credentials "$CLUSTER" --zone "$ZONE"
 
 #### Clone this repo
 
-Clone this repo 
- 
-
+Required: Clone this repo.
 ```shell
 git clone https://github.com/RedisLabs/gkemarketplace
+```
+
+Required: Clone ubbagent (monitors for billing)
+```shell
+git clone https://github.com/RedisLabs/ubbagent.git
+
 ```
 Optional:  For reference, you can get  RedisLabs Enterprise K8s Operator code (i.e., unrelated to Google MP)
 ```shell
@@ -316,11 +320,16 @@ gcloud container clusters delete "$CLUSTER" --zone "$ZONE"
 
 # Upgrading the version
 
-When a few version of the Redis Operator comes out, you will want to upgrade the version. 
+When a new version of the Redis Operator comes out, you will want to upgrade the version. 
 
-1. Upgrade `OP_VERSION=5.4.6-1186` in `Makefile`.
-2. Increment `Makefile:TAG ?= $VERSION` in `Makefile`. This will increment  the version of both this Marketplace package and the UBB image that provides the sidecar.
-3. `make -B app/build`  (where `-B` forces the build even if no change is detected).
+# Upgrade `OP_VERSION=5.4.6-1186` in `Makefile`.
+# Push 
+# Increment `Makefile:TAG ?= $VERSION` in `Makefile`. This will increment  the version of both this Marketplace package and the UBB image that provides the sidecar.
+# In repo for `ubbagent` (`https://github.com/RedisLabs/ubbagent.git`), set `TAG` env variable to new version, e.g. 1.15, then 
+   `docker build -t gcr.io/proven-reality-226706/redislabs/ubbagent:$TAG .`
+   `docker push gcr.io/proven-reality-226706/redislabs/ubbagent:$TAG`
+
+4. Back in `gkemarketplace` `make -B app/build`  (where `-B` forces the build even if no change is detected).
    * This builds the image and pushes it to gcr.io
 
 (`cloudbuild.yaml` allows building this in Cloud Buld instead of `make`. It is not yet in active use, pending permissions for triggers and adoption of a process. )
