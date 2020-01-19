@@ -1,65 +1,56 @@
-include helper/app.Makefile
-include helper/crd.Makefile
-include helper/gcloud.Makefile
-include helper/var.Makefile
+include ../crd.Makefile
+include ../gcloud.Makefile
+include ../var.Makefile
+include ../images.Makefile
 
-OP_VERSION=5.4.6-1186
-TAG ?= 1.15
-REGISTRY ?= gcr.io/proven-reality-226706
-METRICS_EXPORTER_TAG ?= v0.7.1
+VERIFY_WAIT_TIMEOUT = 1200
 
-$(info ---- TAG = $(TAG))
+CHART_NAME := redis-operator
+APP_ID ?= $(CHART_NAME)
 
-APP_DEPLOYER_IMAGE ?= $(REGISTRY)/redislabs/deployer:$(TAG)
-NAME ?= redislabs-1
+#SOURCE_REGISTRY ?= marketplace.gcr.io/google
 
-ifdef METRICS_EXPORTER_ENABLED
-  METRICS_EXPORTER_ENABLED_FIELD = , "metrics.enabled": "$(METRICS_EXPORTER_ENABLED)"
-endif
+SOURCE_REGISTRY ?= gcr.io
+TRACK ?= 1.15
+
+
+IMAGE_MAIN ?= $(SOURCE_REGISTRY)/proven-reality-226706/redislabs:$(TRACK)
+IMAGE_DEPLOYER_HELM ?= gcr.io/cloud-marketplace-tools/k8s/deployer_helm:$(MARKETPLACE_TOOLS_TAG)
+
+
+# Main image
+image-$(CHART_NAME) := $(call get_sha256,$(IMAGE_MAIN))
+
+# List of images used in application
+ADDITIONAL_IMAGES := deployer-helm
+
+# Additional images variable names should correspond with ADDITIONAL_IMAGES list
+# Should be dynamically to use $(MARKETPLACE_TOOLS_TAG)
+image-deployer-helm ?= $(call get_sha256,$(IMAGE_DEPLOYER_HELM))
+
+C2D_CONTAINER_RELEASE := $(call get_c2d_release,$(image-$(CHART_NAME)))
+
+BUILD_ID := $(shell date --utc +%Y%m%d-%H%M%S)
+RELEASE ?= $(C2D_CONTAINER_RELEASE)-$(BUILD_ID)
+
+$(info ---- TRACK = $(TRACK))
+$(info ---- RELEASE = $(RELEASE))
+$(info ---- SOURCE_REGISTRY = $(SOURCE_REGISTRY))
+
+APP_DEPLOYER_IMAGE ?= $(REGISTRY)/$(APP_ID)/deployer:$(RELEASE)
+APP_DEPLOYER_IMAGE_TRACK_TAG ?= $(REGISTRY)/$(APP_ID)/deployer:$(TRACK)
+APP_GCS_PATH ?= $(GCS_URL)/$(APP_ID)/$(TRACK)
+
+NAME ?= $(APP_ID)-1
 
 APP_PARAMETERS ?= { \
-  "APP_INSTANCE_NAME": "$(NAME)", \
-  "NAMESPACE": "$(NAMESPACE)", \
-  "REPORTING_SECRET": "test-value" \
-  $(METRICS_EXPORTER_ENABLED_FIELD) \
+  "name": "$(NAME)", \
+  "namespace": "$(NAMESPACE)" \
 }
 
-TESTER_IMAGE ?= $(REGISTRY)/redislabs/tester:$(TAG)
+# app_v2.Makefile provides the main targets for installing the application.
+# It requires several APP_* variables defined above, and thus must be included after.
+include ../
 
-
-app/build:: .build/redislabs/deployer \
-            .build/redislabs/redislabs \
-
-
-.build/redislabs: | .build
-	mkdir -p "$@"
-
-
-.build/redislabs/deployer: deployer/* \
-                           schema.yaml \
-                           .build/var/APP_DEPLOYER_IMAGE \
-                           .build/var/MARKETPLACE_TOOLS_TAG \
-                           .build/var/REGISTRY \
-                           .build/var/TAG \
-                           | .build/redislabs
-	docker build \
-	    --build-arg REGISTRY="$(REGISTRY)/redislabs" \
-	    --build-arg TAG="$(TAG)" \
-	    --build-arg MARKETPLACE_TOOLS_TAG="$(MARKETPLACE_TOOLS_TAG)" \
-	    --tag "$(APP_DEPLOYER_IMAGE)" \
-	    -f deployer/Dockerfile \
-	    .
-	docker push "$(APP_DEPLOYER_IMAGE)"
-	@touch "$@"
-
-
-.build/redislabs/redislabs: .build/var/REGISTRY \
-                            .build/var/TAG \
-                            | .build/redislabs
-	docker pull redislabs/operator:${OP_VERSION}
-	docker tag  redislabs/operator:${OP_VERSION} \
-	    "$(REGISTRY)/redislabs:$(TAG)"
-	docker push "$(REGISTRY)/redislabs:$(TAG)"
-	@touch "$@"
-
-
+# Build tester image
+app/build:: .build/$(CHART_NAME)/tester

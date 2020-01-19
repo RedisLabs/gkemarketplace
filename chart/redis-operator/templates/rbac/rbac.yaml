@@ -3,7 +3,7 @@ kind: Role
 apiVersion: rbac.authorization.k8s.io/v1
 metadata:
   name: redis-enterprise-operator
-  namespace: $NAMESPACE
+  namespace: {{ .Release.Namespace }}
 rules:
 - apiGroups: ["", "extensions", "apps", "rbac.authorization.k8s.io", "policy"]
   resources: ["*"]
@@ -16,18 +16,18 @@ rules:
 kind: ServiceAccount
 apiVersion: v1
 metadata:
-  name: $SERVICE_ACCOUNT
-  namespace: $NAMESPACE
+  name:  {{ .Values.operator.serviceAccountName }}
+  namespace: {{ .Release.Namespace }}
 ---
 kind: RoleBinding
 apiVersion: rbac.authorization.k8s.io/v1
 metadata:
   name: redis-enterprise-operator
-  namespace: $NAMESPACE
+  namespace: {{ .Release.Namespace }}
 subjects:
 - kind: ServiceAccount
-  name: $SERVICE_ACCOUNT
-  namespace: $NAMESPACE
+  name: {{ .Values.operator.serviceAccountName }}
+  namespace: {{ .Release.Namespace }}
 roleRef:
   kind: Role
   name: redis-enterprise-operator

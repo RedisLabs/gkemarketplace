@@ -1,0 +1,49 @@
+apiVersion: "app.redislabs.com/v1"
+kind: "RedisEnterpriseCluster"
+metadata:
+  name: "redis-enterprise"
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app.kubernetes.io/name: "{{ .Release.Name }}"
+spec:
+  nodes: {{ .Values.operator.replicas }}
+  persistentSpec:
+    enabled: true
+    storageClassName: "standard"
+  uiServiceType: ClusterIP
+  #TODO uiServiceType:  if INGRESS_AVAILABLE 
+  username: {{ .Values.operator.redisAdmin }}
+  redisEnterpriseNodeResources:
+    limits:
+      cpu: "{{ .Values.operator.nodeCpu }}m"
+      memory: {{ .Values.operator.nodeMem }}Gi
+    requests:
+      cpu: "{{ .Values.operator.nodeCpu }}m"
+      memory: {{ .Values.operator.nodeMem }}Gi
+#  sideContainersSpec:#TODO
+#    - name: ubbagent
+#      image: "{{ .Values.operator.ubbAgent }}"
+#      imagePullPolicy: IfNotPresent
+#      env:
+#      - name: NODE_CPU
+#        value: "{{ .Values.operator.nodeCpu }}m"
+#      - name: NODE_MEM
+#        value:  {{ .Values.operator.nodeMem }}Gi
+#      - name: AGENT_CONFIG_FILE
+#        value: /etc/ubbagent/config.yaml
+#      - name: AGENT_LOCAL_PORT
+#        value: "6080"
+#      - name: AGENT_STATE_DIR
+#        value: /opt/persistent/ubbagent
+#      - name: AGENT_REPORT_DIR
+#        value: /opt/persistent/ubbagent/reports
+#      - name: AGENT_ENCODED_KEY
+#        valueFrom:
+#          secretKeyRef:
+#            name: "{{ .Release.Name }}-reporting-secret"
+#            key: reporting-key
+#      - name: AGENT_CONSUMER_ID
+#        valueFrom:
+#          secretKeyRef:
+#            name: "{{ .Release.Name }}-reporting-secret"
+#            key: consumer-id

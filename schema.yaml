@@ -1,25 +1,39 @@
-application_api_version: v1beta1
+x-google-marketplace:
+  schemaVersion: v2
+  applicationApiVersion: v1beta1
+  publishedVersion: "$TAG"
+  publishedVersionMetadata:
+    releaseNote: >-
+      A regular update.
+    releaseTypes:
+      - Feature
+    recommended: false
+
+  images:
+    '':
+      properties:
+        operator.image.repository:
+          type: REPO_WITH_REGISTRY
+        operator.image.tag:
+          type: TAG
+  clusterConstraints:
+    resources:
+    - replicas: 3
+      requests:
+        cpu: 4000m
+        memory: 15Gi
 properties:
-  APP_INSTANCE_NAME:
+  name:
     type: string
     x-google-marketplace:
       type: NAME
-  NAMESPACE:
+  namespace:
     type: string
     x-google-marketplace:
       type: NAMESPACE
-  IMAGE_REDIS:
+  operator.serviceAccountName:
     type: string
-    default: $REGISTRY:$TAG
-    x-google-marketplace:
-      type: IMAGE
-  SERVICE_ACCOUNT:
-    title: Cluster Admin Service Account
-    description: >-
-      Name of a service account in the target namespace that
-      has cluster-admin permissions. This is needed for the operator
-      to create REDIS CRD and resources.
-    type: string
+    title: Service account used by Redis Operator
     x-google-marketplace:
       type: SERVICE_ACCOUNT
       serviceAccount:
@@ -27,25 +41,25 @@ properties:
         - type: ClusterRole
           rulesType: PREDEFINED
           rulesFromRoleName: cluster-admin
-  REPLICAS:
+  operator.replicas:
     type: integer
     title: Number of Cluster Nodes
     description: The number of Pods in the solution
     default: 3
     minimum: 3
     maximum: 11
-  REDIS_ADMIN:
+  operator.redisAdmin:
     type: string
     title: Redis admin username
     description: Username to be used for connecting to Redis
     # https://www.w3.org/TR/html52/sec-forms.html#email-state-typeemail
     pattern: ^[a-zA-Z0-9.!#$%&'*+\/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$
     default: admin@example.com
-  IMAGE_UBBAGENT:
-    type: string
-    default: $REGISTRY/ubbagent:$TAG
-    x-google-marketplace:
-      type: IMAGE
+    #  IMAGE_UBBAGENT: TODO
+    #type: string
+    #default: #"$REGISTRY/ubbagent:$TAG"
+    #x-google-marketplace:
+    #  type: IMAGE
   INGRESS_AVAILABLE:
     type: boolean
     title: Ingress Supported
@@ -56,35 +70,42 @@ properties:
     type: string
     x-google-marketplace:
       type: REPORTING_SECRET
-  NODE_CPU:
+  operator.nodeCpu: #TODO
     title: Node CPU [millis]
     type: integer
     description: Each node CPU in millicpu i.e. 1000 equals 1vCPU
-    default: 4000 
+    default: 4000
     minimum: 100
     maximum: 32000
-  NODE_MEM:
+  operator.nodeMem: #TODO
     title: Node Memory [GB]
     type: integer
     description: Each node RAM in GB ie 1 equals 1GiB
     default: 15
     minimum: 1
     maximum: 269
+  CDRJobServiceAccount:
+    type: string
+    title: Service account used by CRDs deployer
+    x-google-marketplace:
+      type: SERVICE_ACCOUNT
+      serviceAccount:
+        roles:
+        - type: ClusterRole
+          rulesType: CUSTOM
+          rules:
+            - apiGroups: ["apiextensions.k8s.io"]
+              resources: ["customresourcedefinitions"]
+              verbs: ["get","list","create"]
+  deployerHelm.image:
+    type: string
+    x-google-marketplace:
+      type: DEPLOYER_IMAGE
 required:
-- APP_INSTANCE_NAME
-- NAMESPACE
-- IMAGE_REDIS
-- SERVICE_ACCOUNT
-- REPLICAS
-- REDIS_ADMIN
-- REPORTING_SECRET
-- IMAGE_UBBAGENT
-- NODE_CPU
-- NODE_MEM
-x-google-marketplace:
-  clusterConstraints:
-    resources:
-    - replicas: 3
-      requests:
-        cpu: 4000m
-        memory: 15Gi
+- name
+- namespace
+- operator.redisAdmin
+- operator.replicas
+- operator.reportingSecret
+- operator.nodeCpu
+- operator.nodeMem

@@ -1,0 +1,10 @@
+operator:
+  serviceAccountName: null #TODO null here follows jaeger example. Is that right?
+  image:
+    repository: null
+    tag: null
+  replicas: 3
+  redisAdmin: admin@example.com
+  nodeCpu: 4000
+  nodeMem: 15
+  ubbAgent: TODO
