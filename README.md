@@ -72,10 +72,20 @@ gcloud container clusters get-credentials "$CLUSTER" --zone "$ZONE"
 
 #### Clone this repo
 
-Clone this repo and the associated tools repo.
+Clone this repo 
+ 
 
 ```shell
-git clone  https://github.com/RedisLabs/redis-enterprise-k8s-docs.git
+git clone https://github.com/RedisLabs/gkemarketplace
+```
+Optional:  For reference, you can get  RedisLabs Enterprise K8s Operator code (i.e., unrelated to Google MP)
+```shell
+git clone https://github.com/RedisLabs/redis-enterprise-k8s-docs.git
+```
+
+Optional: For reference, you can get  MP K8s tools, examples, and instructions
+```shell
+git clone https://github.com/GoogleCloudPlatform/marketplace-k8s-app-tools
 ```
 
 #### Install the Application resource definition
@@ -140,7 +150,7 @@ Set the version
 **Note**: Do not use a patch number like 1.12.0; use only major-minor.
 
 ```shell
-export VERSION=<MAJOR-MINOR VERSION NUMBER>
+export VERSION=<MAJOR>.<MINOR>
 ```
 
 #### Create namespace in your Kubernetes cluster
@@ -151,7 +161,7 @@ Run the command below to create a new namespace. It is idempotent.
 kubectl create namespace "$NAMESPACE"
 ```
 
-#### Prerequisites for using Role-Based Access Control
+#### Prerequisite: Role-Based Access Control
 
 To use [role-based access control](https://kubernetes.io/docs/reference/access-authn-authz/rbac/) for the app,  grant your user the ability to create roles in
 Kubernetes:
@@ -166,8 +176,8 @@ For steps to enable role-based access control in Google Kubernetes Engine, see t
 
 #### Expand the manifest template
 
-Use `envsubst` to expand the template. We recommend that you save the
-expanded manifest file for future updates to the application.
+We are using the  `envsubst` approach to expand the template. (An alternative approach is with Helm and will be used soon.)
+We recommend that you save the expanded manifest file for future updates to the application.
 
 1. Expand `RBAC` YAML file. You can  configure the RBAC first.
 
@@ -183,7 +193,8 @@ expanded manifest file for future updates to the application.
 
     ```shell
      awk 'FNR==1 {print "---"}{print}' manifest/* \
-     | envsubst '$APP_INSTANCE_NAME $NAMESPACE $IMAGE_REDIS $REPLICAS $REDIS_ADMIN $SERVICE_ACCOUNT $TAG $IMAGE_UBBAGENT $NODE_CPU $NODE_MEM' \
+     | envsubst '$APP_INSTANCE_NAME $NAMESPACE $IMAGE_REDIS $REPLICAS $REDIS_ADMIN $SERVICE_ACCOUNT $TAG $IMAGE_
+     AGENT $NODE_CPU $NODE_MEM' \
      > "${APP_INSTANCE_NAME}_manifest.yaml"
     ```
 
