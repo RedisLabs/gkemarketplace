@@ -1,0 +1,255 @@
+---
+# Source: redis-operator/templates/configmap/crd.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: redis-enterprise-crd-config-map
+  labels:
+    app.kubernetes.io/name: redis-enterprise
+    app.kubernetes.io/component: crd-configmap
+data:
+  redislabs.com_redisenterpriseclusters.app_crd.yaml: |-
+    apiVersion: apiextensions.k8s.io/v1beta1
+    kind: CustomResourceDefinition
+    metadata:
+      name: redisenterpriseclusters.app.redislabs.com
+    spec:
+      group: app.redislabs.com
+      names:
+        kind: RedisEnterpriseCluster
+        listKind: RedisEnterpriseClusterList
+        plural: redisenterpriseclusters
+        singular: redisenterprisecluster
+        shortNames:
+        - rec
+      scope: Namespaced
+      version: v1
+      versions:
+      - name: v1
+        served: true
+        storage: true
+---
+# Source: redis-operator/templates/rbac/rbac.yaml
+kind: ServiceAccount
+apiVersion: v1
+metadata:
+  name:  redis-enterprise-redis-operator
+  namespace: default
+---
+# Source: redis-operator/templates/rbac/rbac.yaml
+kind: Role
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: redis-enterprise-operator
+  namespace: default
+rules:
+- apiGroups: ["", "extensions", "apps", "rbac.authorization.k8s.io", "policy"]
+  resources: ["*"]
+  verbs: ["*"]
+- apiGroups:
+  - app.redislabs.com
+  resources: ["*"]
+  verbs: ["*"]
+---
+# Source: redis-operator/templates/rbac/rbac.yaml
+kind: RoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: redis-enterprise-operator
+  namespace: default
+subjects:
+- kind: ServiceAccount
+  name: redis-enterprise-redis-operator
+  namespace: default
+roleRef:
+  kind: Role
+  name: redis-enterprise-operator
+  apiGroup: rbac.authorization.k8s.io
+---
+# Source: redis-operator/templates/deployment/operator.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: redis-enterprise-redis-operator
+  labels:
+    app.kubernetes.io/name: "redis-enterprise"
+    app.kubernetes.io/component: operator
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: redis-enterprise-redis-operator
+  template:
+    metadata:
+      labels:
+        name: redis-enterprise-redis-operator
+        app.kubernetes.io/name: "redis-enterprise"
+        app.kubernetes.io/component: operator
+    spec:
+      serviceAccountName: redis-enterprise-redis-operator
+      initContainers:
+      - command:
+        - "/bin/bash"
+        - "-ec"
+        - |
+          timeout 120 bash -c '
+          until kubectl get crd redisenterpriseclusters.app.redislabs.com;
+            do echo "Waiting for Redis CRDs created"; sleep 5;
+          done'
+        name: wait-for-crds-created
+        image: gcr.io/cloud-marketplace-tools/k8s/deployer_helm:0.8.0
+      containers:
+        - name: redis-enterprise-operator
+          image: gcr.io/proven-reality-226706/redislabs/operator:1.15
+          command:
+            - redis-enterprise-operator
+          imagePullPolicy: Always
+          env:
+            - name: WATCH_NAMESPACE
+              value: ""
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: POD_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+            - name: OPERATOR_NAME
+              value: "redis-enterprise-redis-operator"
+---
+# Source: redis-operator/templates/job/crd-create.yaml
+apiVersion: batch/v1
+kind: Job
+metadata:
+  annotations:
+  name: redis-enterprise-crd-job
+  labels:
+    app.kubernetes.io/name: "redis-enterprise"
+    app.kubernetes.io/component: crd-job
+spec:
+  ttlSecondsAfterFinished: 300
+  backoffLimit: 0
+  completions: 1
+  parallelism: 1
+  template:
+    spec:
+      containers:
+      - command:
+        - "/bin/bash"
+        - "-ec"
+        - |
+          for crd in /crd_to_create/*;
+            do kubectl apply -f $crd;
+          done
+        image: gcr.io/cloud-marketplace-tools/k8s/deployer_helm:0.8.0
+        imagePullPolicy: Always
+        name: crd-create
+        volumeMounts:
+        - name: crd-configmap
+          mountPath: /crd_to_create/
+      dnsPolicy: ClusterFirst
+      restartPolicy: Never
+      serviceAccountName: redis-enterprise-crd-creator-job
+      volumes:
+      - name: crd-configmap
+        configMap:
+          name: redis-enterprise-crd-config-map
+---
+# Source: redis-operator/templates/application.yaml
+apiVersion: app.k8s.io/v1beta1
+kind: Application
+metadata:
+  name: "redis-enterprise"
+  annotations:
+    kubernetes-engine.cloud.google.com/icon: >-
+      data:image/png;base64, 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 
+    marketplace.cloud.google.com/deploy-info: '{"partner_id": "redislabs-public", "product_id": "redis-operator", "partner_name": "Redis Labs"}'
+  labels:
+    app.kubernetes.io/name: "redis-enterprise"
+spec:
+  descriptor:
+    type: Redis Enterprise Operator
+    version: "1.15"
+    description: |-
+      Redis Operator makes it easy to deploy and manage Redis Enterprise
+      on Kubernetes.
+    maintainers:
+    - name: Redis Labs
+      url: https://redislabs.com/company/contact/support/
+    links:
+    - description: 'User Guide: Redis Enterprise'
+      url: https://support.redislabs.com
+    notes: |-
+      See more details and manual installation instructions here https://github.com/RedisLabs/gkemarketplace
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: "redis-enterprise"
+  componentKinds:
+  - group: apps/v1
+    kind: Deployment
+  - group: v1
+    kind: ConfigMap
+  - group: v1
+    kind: ServiceAccount
+  - group: v1
+    kind: Job
+  - group: v1
+    kind: Pod
+  - group: v1
+    kind: Job
+  - group: v1
+    kind: Service
+  - group: apps/v1
+    kind: StatefulSet
+---
+# Source: redis-operator/templates/redis-enterprise-cluster/redis-enterprise-cluster.yaml
+apiVersion: "app.redislabs.com/v1"
+kind: "RedisEnterpriseCluster"
+metadata:
+  name: "redis-enterprise"
+  namespace: default
+  labels:
+    app.kubernetes.io/name: "redis-enterprise"
+spec:
+  nodes: 3
+  persistentSpec:
+    enabled: true
+    storageClassName: "standard"
+  uiServiceType: ClusterIP
+  #TODO uiServiceType:  if INGRESS_AVAILABLE 
+  username: admin@example.com
+  redisEnterpriseNodeResources:
+    limits:
+      cpu: "4000m"
+      memory: 15Gi
+    requests:
+      cpu: "4000m"
+      memory: 15Gi
+#  sideContainersSpec:#TODO
+#    - name: ubbagent
+#      image: "TODO"
+#      imagePullPolicy: IfNotPresent
+#      env:
+#      - name: NODE_CPU
+#        value: "4000m"
+#      - name: NODE_MEM
+#        value:  15Gi
+#      - name: AGENT_CONFIG_FILE
+#        value: /etc/ubbagent/config.yaml
+#      - name: AGENT_LOCAL_PORT
+#        value: "6080"
+#      - name: AGENT_STATE_DIR
+#        value: /opt/persistent/ubbagent
+#      - name: AGENT_REPORT_DIR
+#        value: /opt/persistent/ubbagent/reports
+#      - name: AGENT_ENCODED_KEY
+#        valueFrom:
+#          secretKeyRef:
+#            name: "redis-enterprise-reporting-secret"
+#            key: reporting-key
+#      - name: AGENT_CONSUMER_ID
+#        valueFrom:
+#          secretKeyRef:
+#            name: "redis-enterprise-reporting-secret"
+#            key: consumer-id
