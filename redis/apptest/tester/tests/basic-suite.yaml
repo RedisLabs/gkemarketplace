@@ -1,4 +1,4 @@
-actions:
+actions: #TODO test and write new tests
 - name: kubectl smoke test
   bashTest:
     script: kubectl version

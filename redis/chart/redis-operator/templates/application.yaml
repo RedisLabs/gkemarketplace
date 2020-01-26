@@ -1,5 +1,5 @@
 apiVersion: app.k8s.io/v1beta1
-kind: Application
+kind: Application #TODO The CRD is supposed to pause before creating this application, but the sleep process is concurrent with applying this K8s object, so we find that the CRD is not yet available
 metadata:
   name: "{{ .Release.Name }}"
   annotations:
