@@ -2,6 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: {{ template "redis_operator.DeploymentName" . }}
+  namespace: {{ .Release.Namespace }} # In Helm Jaeger, this is missing
   labels:
     app.kubernetes.io/name: "{{ .Release.Name }}"
     app.kubernetes.io/component: operator
@@ -28,6 +29,7 @@ spec:
           imagePullPolicy: Always
           env:
             - name: WATCH_NAMESPACE
+              # In Helm  Jaeger, value is just "". But in old RedisOperator and old Jaeger, we have value from fieldRef from metadata.namespace
               value: ""
             - name: POD_NAME
               valueFrom:
