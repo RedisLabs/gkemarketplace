@@ -19,7 +19,7 @@ actions:
   bashTest:
     script: |
       kubectl apply --namespace ${NAMESPACE} -f - <<EOF
-      apiVersion: app.redislabs.com/v1
+      apiVersion: app.redislabs.com/v1alpha1
       kind: RedisEnterpriseCluster
       metadata:
         name: example
@@ -65,7 +65,7 @@ actions:
   bashtest:
     script: |
       kubectl delete --namespace ${NAMESPACE} -f - <<EOF
-      apiVersion: app.redislabs.com/v1
+      apiVersion: app.redislabs.com/v1alpha1
       kind: RedisEnterpriseCluster
       metadata:
         name: example

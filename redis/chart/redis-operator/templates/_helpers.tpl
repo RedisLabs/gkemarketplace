@@ -16,9 +16,12 @@
   - "-ec"
   - |
     timeout 120 bash -c '
+    COUNTER=0
     until kubectl get crd redisenterpriseclusters.app.redislabs.com;
-      do echo "Waiting for Redis CRDs created"; sleep 5;
-    done'
+      do ((COUNTER++)); echo "Waiting for Redis CRDs to be created, counter: ${COUNTER}"; sleep 5;
+    done
+    echo "Finished waiting for Redis CRDs to be created"'
+
   name: wait-for-crds-created
   image: {{ .Values.deployerHelm.image }}
 {{- end -}}
