@@ -1,5 +1,5 @@
 apiVersion: app.k8s.io/v1beta1
-kind: Application #TODO The CRD is supposed to pause before creating this application, but the sleep process is concurrent with applying this K8s object, so we find that the CRD is not yet available
+kind: Application # Question: The CRD creation is supposed to pause before creating the  application, but in fact the CRD creation is launched concurrently with  applying this K8s object, so we find that the CRD is not yet available unless we run everything twice!
 metadata:
   name: "{{ .Release.Name }}"
   annotations:
