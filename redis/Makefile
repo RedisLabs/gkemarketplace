@@ -30,7 +30,7 @@ image-deployer-helm ?= $(call get_sha256,$(IMAGE_DEPLOYER_HELM))
 
 C2D_CONTAINER_RELEASE := $(call get_c2d_release,$(image-$(CHART_NAME)))
 
-BUILD_ID := $(shell date --utc +%Y%m%d-%H%M%S)
+BUILD_ID := $(shell date -u +%Y%m%d-%H%M%S)
 RELEASE ?= $(C2D_CONTAINER_RELEASE)-$(BUILD_ID)
 
 $(info ---- TRACK = $(TRACK))
