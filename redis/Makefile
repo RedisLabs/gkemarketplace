@@ -50,7 +50,7 @@ APP_PARAMETERS ?= { \
 
 # app_v2.Makefile provides the main targets for installing the application.
 # It requires several APP_* variables defined above, and thus must be included after.
-include ../
+include ../c2d_deployer.Makefile
 
 # Build tester image
 app/build:: .build/$(CHART_NAME)/tester
