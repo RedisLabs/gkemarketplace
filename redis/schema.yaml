@@ -106,6 +106,5 @@ required:
 - namespace
 - operator.redisAdmin
 - operator.replicas
-- operator.reportingSecret
 - operator.nodeCpu
 - operator.nodeMem
