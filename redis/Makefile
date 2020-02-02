@@ -9,12 +9,12 @@ CHART_NAME := redis-operator
 APP_ID ?= $(CHART_NAME)
 
 #SOURCE_REGISTRY ?= marketplace.gcr.io/google
-
+PROJECT=joshua-playground
 SOURCE_REGISTRY ?= gcr.io
-TRACK ?= 1.15
+TRACK ?= 1.18
 
 
-IMAGE_MAIN ?= $(SOURCE_REGISTRY)/proven-reality-226706/redislabs:$(TRACK)
+IMAGE_MAIN ?= $(SOURCE_REGISTRY)/$(PROJECT)/redislabs:$(TRACK)
 IMAGE_DEPLOYER_HELM ?= gcr.io/cloud-marketplace-tools/k8s/deployer_helm:$(MARKETPLACE_TOOLS_TAG)
 
 
@@ -28,11 +28,13 @@ ADDITIONAL_IMAGES := deployer-helm
 # Should be dynamically to use $(MARKETPLACE_TOOLS_TAG)
 image-deployer-helm ?= $(call get_sha256,$(IMAGE_DEPLOYER_HELM))
 
-C2D_CONTAINER_RELEASE := $(call get_c2d_release,$(image-$(CHART_NAME)))
+#C2D_CONTAINER_RELEASE := $(call get_c2d_release,$(image-$(CHART_NAME)))
+C2D_CONTAINER_RELEASE ?= $(TRACK).1
 
 BUILD_ID := $(shell date -u +%Y%m%d-%H%M%S)
 RELEASE ?= $(C2D_CONTAINER_RELEASE)-$(BUILD_ID)
 
+$(info ---- C2D_CONTAINER_RELEASE = $(C2D_CONTAINER_RELEASE))
 $(info ---- TRACK = $(TRACK))
 $(info ---- RELEASE = $(RELEASE))
 $(info ---- SOURCE_REGISTRY = $(SOURCE_REGISTRY))

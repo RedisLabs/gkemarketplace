@@ -7,4 +7,5 @@ operator:
   redisAdmin: admin@example.com
   nodeCpu: 4000
   nodeMem: 15
-  ubbAgent: TODO
+  ubbAgent: gcr.io/cloud-marketplace-tools/metering/ubbagent:latest
+ingressAvailable: true #TODO Remove

@@ -1,2 +1,3 @@
 name: redis-operator
-version: 1.16
+version: 1.18
+# TODO update version

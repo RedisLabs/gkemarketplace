@@ -55,32 +55,33 @@ properties:
     # https://www.w3.org/TR/html52/sec-forms.html#email-state-typeemail
     pattern: ^[a-zA-Z0-9.!#$%&'*+\/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$
     default: admin@example.com
-    #  IMAGE_UBBAGENT: TODO
-    #type: string
-    #default: #"$REGISTRY/ubbagent:$TAG"
-    #x-google-marketplace:
-    #  type: IMAGE
-  INGRESS_AVAILABLE:
+  imageUbbagent:
+    type: string
+    default: $REGISTRY/ubbagent:$TAG
+    x-google-marketplace:
+      type: IMAGE
+  ingressAvailable:
     type: boolean
+    default: true
     title: Ingress Supported
     description: Indicates whether the cluster is detected to have Ingress support.
     x-google-marketplace:
       type: INGRESS_AVAILABLE
-  REPORTING_SECRET:
+  REPORTING_SECRET: # TODO -- Is this needed? Is this used?
     type: string
     x-google-marketplace:
       type: REPORTING_SECRET
-  operator.nodeCpu: #TODO
+  operator.nodeCpu:
     title: Node CPU [millis]
     type: integer
-    description: Each node CPU in millicpu i.e. 1000 equals 1vCPU
+    description: Each node CPU in millicpu, i.e. 1000 equals 1vCPU
     default: 4000
     minimum: 100
     maximum: 32000
-  operator.nodeMem: #TODO
+  operator.nodeMem:
     title: Node Memory [GB]
     type: integer
-    description: Each node RAM in GB ie 1 equals 1GiB
+    description: Each node RAM in GB, i.e., 1 equals 1GiB
     default: 15
     minimum: 1
     maximum: 269
