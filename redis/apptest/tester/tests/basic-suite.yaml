@@ -25,12 +25,12 @@ actions: #TODO test and write new tests
     expect:
       exitCode:
         equals: 0
-- name: Waiting for redis-enterprise-services-rigger pods to be created
+- name: Waiting for redis-operator deployment to be created
   bashTest:
     script: |
       timeout 120 bash -c '
-      until kubectl get pod -n ${NAMESPACE} | grep redis-enterprise-services-rigger
-            do echo "Waiting for  redis-enterprise-services-rigger pods to be created"; sleep 5;
+      until kubectl get deployment -n ${NAMESPACE} | grep redis-operator
+            do echo "Waiting for  redis-operator deployment to be created"; sleep 5;
       done'
     expect:
       exitCode:
