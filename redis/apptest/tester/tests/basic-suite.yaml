@@ -9,70 +9,29 @@ actions: #TODO test and write new tests
   bashTest:
     script: |
       timeout 120 bash -c '
-      until kubectl get crd app.redislabs.com;
+      until kubectl get crd redisenterpriseclusters.app.redislabs.com;
             do echo "Waiting for RedisEnterpriseClusters CRDs created"; sleep 5;
       done'
     expect:
       exitCode:
         equals: 0
-- name: Deploy test RedisEnterpriseCluster
+- name: Waiting for RedisEnterpriseClusters CRDs created
   bashTest:
     script: |
-      kubectl apply --namespace ${NAMESPACE} -f - <<EOF
-      apiVersion: app.redislabs.com/v1alpha1
-      kind: RedisEnterpriseCluster
-      metadata:
-        name: example
-      spec:
-        ingress:
-          enabled: false
-      EOF
-    expect:
-      exitCode:
-        equals: 0
-- name: Try to get IP of RedisEnterpriseCluster query service
-  bashTest:
-    script: |
-      export NAMESPACE;
       timeout 120 bash -c '
-        until (host example-query.${NAMESPACE}.svc.cluster.local \
-              | grep "has address");
-          do sleep 2;
-        done'
+      until kubectl get crd redisenterpriseclusters.app.redislabs.com;
+            do echo "Waiting for RedisEnterpriseClusters CRDs created"; sleep 5;
+      done'
     expect:
       exitCode:
         equals: 0
-- name: Try to connect to RedisEnterpriseCluster query service
+- name: Waiting for redis-enterprise-services-rigger pods to be created
   bashTest:
     script: |
-      export NAMESPACE;
       timeout 120 bash -c '
-        until nc -vzw 5 example-query.${NAMESPACE}.svc.cluster.local 16686;
-          do sleep 2;
-        done'
-    expect:
-      exitCode:
-        equals: 0
-- name: Try to make test request to RedisEnterpriseCluster query service
-  bashTest:
-    script: |
-      curl --retry 3 --retry-connrefused --retry-max-time 60 \
-        example-query.${NAMESPACE}.svc.cluster.local:16686/api/services?foo=bar
-    expect:
-      exitCode:
-        equals: 0
- name: delete test redisenterprisecluster
-  bashtest:
-    script: |
-      kubectl delete --namespace ${NAMESPACE} -f - <<EOF
-      apiVersion: app.redislabs.com/v1alpha1
-      kind: RedisEnterpriseCluster
-      metadata:
-        name: example
-      spec:
-        ingress:
-          enabled: false
-      EOF
+      until kubectl get pod -n ${NAMESPACE} | grep redis-enterprise-services-rigger
+            do echo "Waiting for  redis-enterprise-services-rigger pods to be created"; sleep 5;
+      done'
     expect:
       exitCode:
         equals: 0

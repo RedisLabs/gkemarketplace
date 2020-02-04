@@ -1,5 +1,5 @@
 operator:
-  serviceAccountName: null #TODO null here follows jaeger example. Is that right?
+  serviceAccountName: null
   image:
     repository: null
     tag: null
@@ -7,5 +7,5 @@ operator:
   redisAdmin: admin@example.com
   nodeCpu: 4000
   nodeMem: 15
-  ubbAgent: gcr.io/cloud-marketplace-tools/metering/ubbagent:latest
-ingressAvailable: true #TODO Remove
+  imageUbbAgent: gcr.io/proven-reality-226706/redislabs/ubbagent:1.15
+ingressAvailable: true # TODO remove

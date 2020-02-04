@@ -55,9 +55,9 @@ properties:
     # https://www.w3.org/TR/html52/sec-forms.html#email-state-typeemail
     pattern: ^[a-zA-Z0-9.!#$%&'*+\/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$
     default: admin@example.com
-  imageUbbagent:
+  operator.imageUbbAgent:
     type: string
-    default: $REGISTRY/ubbagent:$TAG
+    default: gcr.io/proven-reality-226706/redislabs/ubbagent:1.15
     x-google-marketplace:
       type: IMAGE
   ingressAvailable:
@@ -67,7 +67,7 @@ properties:
     description: Indicates whether the cluster is detected to have Ingress support.
     x-google-marketplace:
       type: INGRESS_AVAILABLE
-  REPORTING_SECRET: # TODO -- Is this needed? Is this used?
+  reportingSecret:
     type: string
     x-google-marketplace:
       type: REPORTING_SECRET

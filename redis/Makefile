@@ -11,7 +11,7 @@ APP_ID ?= $(CHART_NAME)
 #SOURCE_REGISTRY ?= marketplace.gcr.io/google
 PROJECT=joshua-playground
 SOURCE_REGISTRY ?= gcr.io
-TRACK ?= 1.18
+TRACK ?= 1.20
 
 
 IMAGE_MAIN ?= $(SOURCE_REGISTRY)/$(PROJECT)/redislabs:$(TRACK)

@@ -21,7 +21,7 @@ spec:
       memory: "{{ .Values.operator.nodeMem }}Gi"
   sideContainersSpec:
     - name: ubbagent
-      image: "{{ .Values.operator.ubbAgent }}"
+      image: "{{ .Values.operator.imageUbbAgent }}"
       imagePullPolicy: IfNotPresent
       env:
       - name: NODE_CPU
@@ -39,10 +39,10 @@ spec:
       - name: AGENT_ENCODED_KEY
         valueFrom:
           secretKeyRef:
-            name: "{{ .Release.Name }}-reporting-secret"
+            name: "{{ .Values.reportingSecret }}"
             key: reporting-key
       - name: AGENT_CONSUMER_ID
         valueFrom:
           secretKeyRef:
-            name: "{{ .Release.Name }}-reporting-secret"
+            name: "{{ .Values.reportingSecret }}"
             key: consumer-id
