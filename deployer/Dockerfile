@@ -5,7 +5,7 @@ FROM marketplace.gcr.io/google/debian9 AS build
 ARG CHART_NAME
 
 RUN apt-get update \
-    && apt-get install -y --no-install-recommends gettext
+    && apt-get install -y --no-install-recommends gettext jq
 
 ADD chart/$CHART_NAME /tmp/chart
 RUN cd /tmp && tar -czvf /tmp/$CHART_NAME.tar.gz chart

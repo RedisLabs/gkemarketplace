@@ -6,6 +6,18 @@
 {{- printf "%s-crd-job" .Release.Name | trunc 63 -}}
 {{- end -}}
 
+{{- define "redis_operator.CRsConfigMap" -}}
+{{- printf "%s-cr-config-map" .Release.Name | trunc 63 -}}
+{{- end -}}
+
+{{- define "redis_operator.UBBAgentConfigMap" -}}
+{{- printf "%s-ubbagent-config-map" .Release.Name | trunc 63 -}}
+{{- end -}}
+
+{{- define "redis_operator.CRsJob" -}}
+{{- printf "%s-cr-job" .Release.Name | trunc 63 -}}
+{{- end -}}
+
 {{- define "redis_operator.DeploymentName" -}}
 {{- printf "%s-redis-operator" .Release.Name | trunc 63 -}}
 {{- end -}}

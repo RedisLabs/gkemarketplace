@@ -1,0 +1,37 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ template "redis_operator.UBBAgentConfigMap" . }}
+  labels:
+    app.kubernetes.io/name: {{ .Release.Name }}
+    app.kubernetes.io/component: ubbagent-configmap
+data:
+  config.yaml: |-
+    identities:
+    - name: gcp
+      gcp:
+          # A base64-encoded service account key used to report usage to
+          # Google Service Control.
+          encodedServiceAccountKey: $AGENT_ENCODED_KEY
+    metrics:
+    - name: shards_used
+      type: int
+      endpoints:
+      - name: servicecontrol
+      aggregation:
+        bufferSeconds: 3600
+    endpoints:
+    - name: servicecontrol
+      servicecontrol:
+        identity: gcp
+        serviceName: redislabs.mp-redislabs-public.appspot.com
+        consumerId: $AGENT_CONSUMER_ID
+    sources:
+    - name: redislabs.mp-redislabs-public.appspot.com
+      heartbeat:
+        metric: shards_used
+        intervalSeconds: 600
+        value:
+          int64Value: 600
+        labels:
+          auto: true

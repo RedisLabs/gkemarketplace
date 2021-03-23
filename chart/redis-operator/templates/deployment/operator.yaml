@@ -1,0 +1,90 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: redis-enterprise-operator
+  namespace: {{ .Release.Namespace }} 
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: redis-enterprise-operator
+  template:
+    metadata:
+      labels:
+        name: redis-enterprise-operator
+    spec:
+      serviceAccountName: {{ .Values.operator.serviceAccountName }}
+      initContainers:
+        {{- include "initContainerWaitForCRDsDeploy" . | nindent 6 }}
+      containers:
+        - name: redis-enterprise-operator
+          image: {{ .Values.operator.image.repository }}/operator:{{ .Values.operator.image.tag }}
+          command:
+            - redis-enterprise-operator
+          imagePullPolicy: Always
+          env:
+            - name: WATCH_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: OPERATOR_NAME
+              value: redis-enterprise-operator
+            - name: DATABASE_CONTROLLER_ENABLED
+              value: "false"              
+          resources:
+            limits:
+              cpu: 4000m
+              memory: 512Mi
+            requests:
+              cpu: 500m
+              memory: 256Mi
+        - name: usage-meter
+          image: {{ .Values.usagemeter.image }}
+          imagePullPolicy: Always
+          env:
+          - name: INTERVAL
+            value: "60"
+          - name: ENDPOINT
+            value: "http://localhost:3456"
+          - name: METRICS
+            value: "--shards --report-value shards_used"
+        - name: billing-agent
+          image: {{ .Values.billingagent.image }}
+          imagePullPolicy: Always
+        - name: ubbagent
+          image: gcr.io/cloud-marketplace-tools/metering/ubbagent
+          imagePullPolicy: IfNotPresent
+          env:
+          - name: NODE_CPU
+            value: "{{ .Values.operator.nodeCpu }}m"
+          - name: NODE_MEM
+            value: "{{ .Values.operator.nodeMem }}Gi"
+          - name: AGENT_CONFIG_FILE
+            value: /ubbagent/config.yaml
+          - name: AGENT_LOCAL_PORT
+            value: "6080"
+          - name: AGENT_STATE_DIR
+            value: /opt/persistent/ubbagent
+          - name: AGENT_REPORT_DIR
+            value: /opt/persistent/ubbagent/reports
+          - name: AGENT_ENCODED_KEY
+            valueFrom:
+              secretKeyRef:
+                name: "{{ .Values.reportingSecret }}"
+                key: reporting-key
+          - name: AGENT_CONSUMER_ID
+            valueFrom:
+              secretKeyRef:
+                name: "{{ .Values.reportingSecret }}"
+                key: consumer-id
+          volumeMounts:
+            - name: ubb-configmap
+              mountPath: /ubbagent/
+      volumes:
+      - name: ubb-configmap
+        configMap:
+          name: {{ template "redis_operator.UBBAgentConfigMap" . }}

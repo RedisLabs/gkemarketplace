@@ -1,0 +1,11 @@
+operator:
+  serviceAccountName: null
+  image:
+    repository: null
+    tag: null  
+ubbagent:
+  image: null
+billingagent:
+  image: us-central1-docker.pkg.dev/sam-playground-290106/redis-mp/billing-agent:6.0.12-5
+usagemeter:
+  image: us-central1-docker.pkg.dev/sam-playground-290106/redis-mp/usage-meter:6.0.12-5

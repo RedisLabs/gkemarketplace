@@ -1,0 +1,32 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ template "redis_operator.CRsConfigMap" . }}
+  labels:
+    app.kubernetes.io/name: {{ .Release.Name }}
+    app.kubernetes.io/component: cr-configmap
+data:
+  redis-enterprise-cluster.yaml: |-
+    apiVersion: "app.redislabs.com/v1alpha1"
+    kind: "RedisEnterpriseCluster"
+    metadata:
+      name: "redis-enterprise"
+      namespace: {{ .Release.Namespace }}
+      labels:
+        app.kubernetes.io/name: "{{ .Release.Name }}"
+    spec:
+      nodes: {{ .Values.operator.replicas }}
+      persistentSpec:
+        enabled: true
+        storageClassName: "standard"
+      uiServiceType: "{{ if .Values.ingressAvailable -}}LoadBalancer{{- else -}}ClusterIP{{- end }}"
+      username: "{{ .Values.operator.redisAdmin }}"
+      redisEnterpriseNodeResources:
+        limits:
+          cpu: "{{ .Values.operator.nodeCpu }}m"
+          memory: "{{ .Values.operator.nodeMem }}Gi"
+        requests:
+          cpu: "{{ .Values.operator.nodeCpu }}m"
+          memory: "{{ .Values.operator.nodeMem }}Gi"
+
+

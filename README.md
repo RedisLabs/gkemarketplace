@@ -1,9 +1,6 @@
 # Overview
 
- 
-
-This bundles [Redis Enterprise](https://www.redislabs.com/) into a form suited to Google Cloud Platform Marketplace.
-
+This repo is for building and deploying [Redis Enterprise](https://github.com/RedisLabs/redis-enterprise-k8s-docs) for GKE Market Place.   
 
 ## Design
 
@@ -18,10 +15,7 @@ The deployment creates two services:
 - Service discovery: a headless service for connections between
   the Redis-Enterprise nodes.
 
-Redis-Enterprise Kubernetes application has the following ports configured: [TODO]
-
-
-# Installation
+# Build instructions
 
 ## Quick install with Google Cloud Marketplace
 
