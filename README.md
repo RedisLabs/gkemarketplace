@@ -48,7 +48,6 @@ Create a new cluster from the command line. The command is idempotent so runs af
 ```shell
 export CLUSTER=redis-cluster
 export ZONE=us-west1-a
-
 gcloud container clusters create "$CLUSTER" --zone "$ZONE"
 ```
 
@@ -72,13 +71,14 @@ cd k8s
 git clone https://github.com/RedisLabs/gkemarketplace
 ```
 
-```
 Optional:  For reference, you can get  RedisLabs Enterprise K8s Operator code (i.e., unrelated to Google MP)
+
 ```shell
 git clone https://github.com/RedisLabs/redis-enterprise-k8s-docs.git
 ```
 
 Optional: For reference, you can get  MP K8s tools, examples, and instructions
+
 ```shell
 git clone https://github.com/GoogleCloudPlatform/marketplace-k8s-app-tools
 ```
