@@ -41,6 +41,10 @@ gcloud auth login
 gcloud auth configure-docker
 ```
 
+#### Permissions
+
+User who builds and deploys the solution would need "Kubernetes Engine Admin" and "Editor" permissions.
+
 #### Create a Google Kubernetes Engine cluster
 
 Create a new cluster from the command line. The command is idempotent so runs after the first are not needed, but do no harm.
@@ -51,7 +55,7 @@ export ZONE=us-west1-a
 gcloud container clusters create "$CLUSTER" --zone "$ZONE"
 ```
 
-Configure `kubectl` to connect to the new cluster.
+Configure `kubectl` to connect to the new cluster. The following is optional as by default cluster create adds credentials to local kube config.
 
 ```shell
 gcloud container clusters get-credentials "$CLUSTER" --zone "$ZONE"

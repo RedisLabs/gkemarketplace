@@ -9,7 +9,7 @@ include ../gcloud.Makefile
 include ../var.Makefile
 
 #REGISTRY ?= marketplace.gcr.io/google/redis-enterprise-operator
-REGISTRY := us-central1-docker.pkg.dev/sam-playground-290106/redis-mp
+REGISTRY := us-central1-docker.pkg.dev/proven-reality-226706/redis-market-place
 $(info ---- REGISTRY = $(REGISTRY))
 
 CHART_NAME := redis-operator
