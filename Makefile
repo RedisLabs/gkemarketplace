@@ -8,8 +8,13 @@ include ../crd.Makefile
 include ../gcloud.Makefile
 include ../var.Makefile
 
+# Production repo
 #REGISTRY ?= marketplace.gcr.io/google/redis-enterprise-operator
-REGISTRY := us-central1-docker.pkg.dev/proven-reality-226706/redis-market-place
+# Artifact repo
+#REGISTRY := us-central1-docker.pkg.dev/proven-reality-226706/redis-market-place
+# Container repo
+REGISTRY := gcr.io/proven-reality-226706/redislabs
+
 $(info ---- REGISTRY = $(REGISTRY))
 
 CHART_NAME := redis-operator
