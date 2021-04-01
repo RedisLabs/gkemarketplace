@@ -3,8 +3,7 @@ kind: Application # Question: The CRD creation is supposed to pause before creat
 metadata:
   name: "{{ .Release.Name }}"
   annotations:
-    kubernetes-engine.cloud.google.com/icon: >-
-      data:image/png;base64, {{ .Files.Get "logo.png" | b64enc }} {{/* Get logo.png from the root of chart */}}
+    kubernetes-engine.cloud.google.com/icon: data:image/png;base64,{{ .Files.Get "logo.png" | b64enc | trim }}
     marketplace.cloud.google.com/deploy-info: '{"partner_id": "redislabs-public", "product_id": {{ .Chart.Name | quote }}, "partner_name": "Redis Labs"}'
   labels:
     app.kubernetes.io/name: "{{ .Release.Name }}"
