@@ -26,7 +26,15 @@ $(info ---- REDIS_TAG = $(REDIS_TAG))
 OPERATOR_TAG ?= 6.0.12-5
 $(info ---- OPERATOR_TAG = $(OPERATOR_TAG))
 
-APP_DEPLOYER_IMAGE := $(REGISTRY)/deployer:$(OPERATOR_TAG)
+# Deployer tag is used for displaying versions in partner portal.
+# This version only support major.minor so the Redis version major.minor.patch
+# is converted into more readable form of major.2 digit zero padded minor + patch
+# without the hyphen
+DEPLOYER_TAG = 6.001205
+$(info ---- DEPLOYER_TAG = $(DEPLOYER_TAG))
+
+# Tag the deployer image with modified version.
+APP_DEPLOYER_IMAGE := $(REGISTRY)/deployer:$(DEPLOYER_TAG)
 
 NAME ?= redis-enterprise-operator-1
 NAMESPACE ?= redis
@@ -40,6 +48,7 @@ TESTER_IMAGE ?= $(REGISTRY)/tester:$(OPERATOR_TAG)
 
 app/build:: .build/redis-enterprise-operator/deployer \
             .build/redis-enterprise-operator/redis \
+			.build/redis-enterprise-operator/primary \
 			.build/redis-enterprise-operator/operator \
 			.build/redis-enterprise-operator/k8s-controller \
 			.build/redis-enterprise-operator/usage-meter \
@@ -106,6 +115,21 @@ app/build:: .build/redis-enterprise-operator/deployer \
 	docker pull redislabs/redis:$(REDIS_TAG)
 	docker tag redislabs/redis:$(REDIS_TAG) "$(REGISTRY)/redis:$(REDIS_TAG)"
 	docker push "$(REGISTRY)/redis:$(REDIS_TAG)"
+	@touch "$@"
+
+# Operator image is the what Google calls the primary image.
+# Label the primary image with the same tag as deployer image.
+# From the partner portal, primary image is queried using the same tag 
+# as deployer image. When pulling the image from docker hub use 
+# the redis native tag and push that image as primary image with deployer tag.
+.build/redis-enterprise-operator/primary: .build/var/REGISTRY \
+										  .build/var/OPERATOR_TAG \
+                                          .build/var/DEPLOYER_TAG \
+                                          | .build/redis-enterprise-operator
+	$(call print_target, $@)
+	docker pull redislabs/operator:$(OPERATOR_TAG)
+	docker tag redislabs/operator:$(OPERATOR_TAG) "$(REGISTRY):$(DEPLOYER_TAG)"
+	docker push "$(REGISTRY):$(DEPLOYER_TAG)"
 	@touch "$@"
 
 .build/redis-enterprise-operator/operator: .build/var/REGISTRY \
