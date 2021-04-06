@@ -16,14 +16,12 @@ x-google-marketplace:
           type: REPO_WITH_REGISTRY
         operator.image.tag:
           type: TAG
-    billingagent:
-      properties:
-        billingagent.image:
-          type: FULL
     usagemeter:
       properties:
         usagemeter.image:
-          type: FULL        
+          type: REPO_WITH_REGISTRY
+        usagemeter.tag:
+          type: TAG
   clusterConstraints:
     resources:
     - replicas: 3

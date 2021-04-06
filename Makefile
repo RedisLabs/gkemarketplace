@@ -30,7 +30,7 @@ $(info ---- OPERATOR_TAG = $(OPERATOR_TAG))
 # This version only support major.minor so the Redis version major.minor.patch
 # is converted into more readable form of major.2 digit zero padded minor + patch
 # without the hyphen
-DEPLOYER_TAG = 6.001205
+DEPLOYER_TAG ?= 6.001205
 $(info ---- DEPLOYER_TAG = $(DEPLOYER_TAG))
 
 # Tag the deployer image with modified version.
@@ -44,16 +44,16 @@ APP_PARAMETERS ?= { \
   "NAMESPACE": "$(NAMESPACE)" \
 }
 
-TESTER_IMAGE ?= $(REGISTRY)/tester:$(OPERATOR_TAG)
+#TESTER_IMAGE ?= $(REGISTRY)/tester:$(OPERATOR_TAG)
 
 app/build:: .build/redis-enterprise-operator/deployer \
-            .build/redis-enterprise-operator/redis \
 			.build/redis-enterprise-operator/primary \
-			.build/redis-enterprise-operator/operator \
-			.build/redis-enterprise-operator/k8s-controller \
 			.build/redis-enterprise-operator/usage-meter \
-			.build/redis-enterprise-operator/billing-agent \
-            .build/redis-enterprise-operator/tester 
+			 .build/redis-enterprise-operator/operator \
+			# .build/redis-enterprise-operator/redis \
+			# .build/redis-enterprise-operator/k8s-controller \
+			# .build/redis-enterprise-operator/billing-agent \
+         #    .build/redis-enterprise-operator/tester
 
 
 .build/redis-enterprise-operator: | .build
@@ -128,8 +128,8 @@ app/build:: .build/redis-enterprise-operator/deployer \
                                           | .build/redis-enterprise-operator
 	$(call print_target, $@)
 	docker pull redislabs/operator:$(OPERATOR_TAG)
-	docker tag redislabs/operator:$(OPERATOR_TAG) "$(REGISTRY):$(DEPLOYER_TAG)"
-	docker push "$(REGISTRY):$(DEPLOYER_TAG)"
+	docker tag redislabs/operator:$(OPERATOR_TAG) "$(REGISTRY):$(OPERATOR_TAG)"
+	docker push "$(REGISTRY):$(OPERATOR_TAG)"
 	@touch "$@"
 
 .build/redis-enterprise-operator/operator: .build/var/REGISTRY \
@@ -149,5 +149,3 @@ app/build:: .build/redis-enterprise-operator/deployer \
 	docker tag redislabs/k8s-controller:$(OPERATOR_TAG) "$(REGISTRY)/k8s-controller:$(OPERATOR_TAG)"
 	docker push "$(REGISTRY)/k8s-controller:$(OPERATOR_TAG)"
 	@touch "$@"
-
-

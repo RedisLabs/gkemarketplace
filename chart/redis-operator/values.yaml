@@ -2,10 +2,10 @@ operator:
   serviceAccountName: null
   image:
     repository: null
-    tag: null  
+    tag: null
 ubbagent:
   image: null
-billingagent:
-  image: gcr.io/proven-reality-226706/redislabs/billing-agent:6.0.12-5
 usagemeter:
-  image: gcr.io/proven-reality-226706/redislabs/usage-meter:6.0.12-5
+  image:
+    repository: null
+    tag: null
