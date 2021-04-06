@@ -43,7 +43,7 @@ spec:
               cpu: 500m
               memory: 256Mi
         - name: usage-meter
-          image: {{ .Values.usagemeter.image }}
+          image: {{ .Values.usagemeter.image }}:{{ .Values.usagemeter.tag }}
           imagePullPolicy: Always
           env:
           - name: INTERVAL
@@ -52,9 +52,6 @@ spec:
             value: "http://localhost:3456"
           - name: METRICS
             value: "--shards --report-value shards_used"
-        - name: billing-agent
-          image: {{ .Values.billingagent.image }}
-          imagePullPolicy: Always
         - name: ubbagent
           image: gcr.io/cloud-marketplace-tools/metering/ubbagent
           imagePullPolicy: IfNotPresent

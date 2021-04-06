@@ -20,9 +20,10 @@ spec:
         - "/bin/bash"
         - "-ec"
         - |
-          for cr in /cr_to_create/*;
-            do cat $cr; kubectl apply -f $cr;
-          done
+          if ! kubectl get rec/redis-enterprise 2>/dev/null
+          then
+            kubectl apply -f /cr_to_create/redis-enterprise-cluster.yaml
+          fi
         image: {{ .Values.deployerHelm.image }}
         imagePullPolicy: Always
         name: cr-create
