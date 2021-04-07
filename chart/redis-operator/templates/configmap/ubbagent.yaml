@@ -14,24 +14,15 @@ data:
           # Google Service Control.
           encodedServiceAccountKey: $AGENT_ENCODED_KEY
     metrics:
-    - name: shards_used
+    - name: small_node_time
       type: int
       endpoints:
       - name: servicecontrol
       aggregation:
-        bufferSeconds: 3600
+        bufferSeconds: 180
     endpoints:
     - name: servicecontrol
       servicecontrol:
         identity: gcp
         serviceName: redislabs.mp-redislabs-public.appspot.com
         consumerId: $AGENT_CONSUMER_ID
-    sources:
-    - name: redislabs.mp-redislabs-public.appspot.com
-      heartbeat:
-        metric: shards_used
-        intervalSeconds: 600
-        value:
-          int64Value: 600
-        labels:
-          auto: true
