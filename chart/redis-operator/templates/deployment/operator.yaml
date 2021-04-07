@@ -2,7 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: redis-enterprise-operator
-  namespace: {{ .Release.Namespace }} 
+  namespace: {{ .Release.Namespace }}
 spec:
   replicas: 1
   selector:
@@ -34,7 +34,7 @@ spec:
             - name: OPERATOR_NAME
               value: redis-enterprise-operator
             - name: DATABASE_CONTROLLER_ENABLED
-              value: "false"              
+              value: "false"
           resources:
             limits:
               cpu: 4000m
@@ -49,17 +49,13 @@ spec:
           - name: INTERVAL
             value: "60"
           - name: ENDPOINT
-            value: "http://localhost:3456"
+            value: "http://localhost:6080"
           - name: METRICS
-            value: "--shards --report-value shards_used"
+            value: "--shards --report-value shards_used --metric-name redislabs_db_shards_used_by_hour"
         - name: ubbagent
           image: gcr.io/cloud-marketplace-tools/metering/ubbagent
           imagePullPolicy: IfNotPresent
           env:
-          - name: NODE_CPU
-            value: "{{ .Values.operator.nodeCpu }}m"
-          - name: NODE_MEM
-            value: "{{ .Values.operator.nodeMem }}Gi"
           - name: AGENT_CONFIG_FILE
             value: /ubbagent/config.yaml
           - name: AGENT_LOCAL_PORT
