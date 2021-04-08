@@ -14,12 +14,12 @@ data:
           # Google Service Control.
           encodedServiceAccountKey: $AGENT_ENCODED_KEY
     metrics:
-    - name: small_node_time
-      type: int
+    - name: redislabs_db_shard_hour
+      type: double
       endpoints:
       - name: servicecontrol
       aggregation:
-        bufferSeconds: 180
+        bufferSeconds: 360
     endpoints:
     - name: servicecontrol
       servicecontrol:

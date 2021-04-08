@@ -140,6 +140,7 @@ if __name__ == "__main__":
    argparser.add_argument('--verbose',help='Verbose output',action='store_true',default=False)
    argparser.add_argument('--use-config',help='Use the .kubeconfig',action='store_true',default=False)
    argparser.add_argument('--interval',help='Usage interval (in seconds)',type=int,default=60)
+   argparser.add_argument('--time-period',help='The time period for reporting (e.g. per hour 3600)',type=int)
    argparser.add_argument('--namespace',help='The namespace; defaults to the context.')
    argparser.add_argument('--send-to',help='The URL of the endpoint to report the usage.')
    argparser.add_argument('--shards',help='Enable shard usage report',action='store_true',default=False)
@@ -170,6 +171,11 @@ if __name__ == "__main__":
       return True
    report = print_report
 
+   scale = None
+
+   if args.time_period:
+      scale = args.interval / args.time_period
+
    if args.send_to:
       def sender(name,start,end,data):
          metric = metric_namer(data)
@@ -178,7 +184,7 @@ if __name__ == "__main__":
             'name' : metric,
             'startTime' : start,
             'endTime' : end,
-            'value' : { 'int64Value' : value}
+            'value' : { 'int64Value' : value} if scale is None else {'doubleValue' : value * scale}
          }
          return send_report(args.send_to,usage_data)
       report = sender
