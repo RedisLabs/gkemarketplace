@@ -140,6 +140,11 @@ properties:
     type: string
     x-google-marketplace:
       type: REPORTING_SECRET
+  operator.storageClass:
+    title: Storage Class
+    type: string
+    description: Storage class
+    default: standard
   operator.nodeCpu:
     title: Node CPU [millis]
     type: integer
@@ -175,6 +180,7 @@ properties:
 required:
 - name
 - namespace
+- operator.storageClass
 - operator.redisAdmin
 - operator.replicas
 - operator.nodeCpu

@@ -18,7 +18,7 @@ data:
       nodes: {{ .Values.operator.replicas }}
       persistentSpec:
         enabled: true
-        storageClassName: "standard"
+        storageClassName: {{ .Values.operator.storageClass }}
       uiServiceType: "{{ if .Values.ingressAvailable -}}LoadBalancer{{- else -}}ClusterIP{{- end }}"
       username: "{{ .Values.operator.redisAdmin }}"
       redisEnterpriseNodeResources:
