@@ -90,18 +90,20 @@ def get_shards(namespace, name):
    return used, max
 
 def send_report(endpoint,data):
+   print('\x1E',data,sep='',flush=True)
    response = requests.post(endpoint,json=data)
    if response.status_code < 200 or response.status_code >= 300:
-      print('Cannot post report, status={}'.format(response.status_code))
+      print('Cannot post report, status={}'.format(response.status_code),flush=True)
       return False
    return True
 
-def print_report(name,start,end,data):
-   print('{}: {} {} {}'.format(name,start,end,data),flush=True)
-   return True
-def report_usage(namespace,interval=60,shards=False,report=print_report):
+def report_usage(namespace,interval=60,shards=False,report=None):
    start = tstamp()
    since_last_report = 0
+   if report is None:
+      def printer(*args):
+         print(args,flush=True)
+      report = printer
    while running:
       time.sleep(interval)
       end = tstamp()
@@ -162,6 +164,10 @@ if __name__ == "__main__":
       else:
          metric_name = eval(args.infer_metric_name)
 
+   def print_report(name,start,end,data):
+      metric = metric_namer(data)
+      print('{}: {} {} {} {}'.format(name,metric,start,end,data),flush=True)
+      return True
    report = print_report
 
    if args.send_to:

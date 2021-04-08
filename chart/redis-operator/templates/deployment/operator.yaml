@@ -34,7 +34,7 @@ spec:
             - name: OPERATOR_NAME
               value: redis-enterprise-operator
             - name: DATABASE_CONTROLLER_ENABLED
-              value: "false"
+              value: "true"
           resources:
             limits:
               cpu: 4000m
@@ -49,9 +49,10 @@ spec:
           - name: INTERVAL
             value: "60"
           - name: ENDPOINT
-            value: "http://localhost:6080"
+            value: "http://localhost:6080/report"
           - name: METRICS
-            value: "--shards --report-value shards_used --metric-name redislabs_db_shards_used_by_hour"
+            # Using should be:  -shards --report-value shards_used --metric-name redislabs_db_shards_used_by_hour
+            value: "--shards --report-value interval --metric-name small_node_time"
         - name: ubbagent
           image: gcr.io/cloud-marketplace-tools/metering/ubbagent
           imagePullPolicy: IfNotPresent
