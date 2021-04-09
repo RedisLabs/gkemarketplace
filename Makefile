@@ -49,7 +49,7 @@ APP_PARAMETERS ?= { \
 app/build:: .build/redis-enterprise-operator/deployer \
 			.build/redis-enterprise-operator/primary \
 			.build/redis-enterprise-operator/usage-meter \
-			 .build/redis-enterprise-operator/operator \
+			# .build/redis-enterprise-operator/operator \
 			# .build/redis-enterprise-operator/redis \
 			# .build/redis-enterprise-operator/k8s-controller \
 			# .build/redis-enterprise-operator/billing-agent \
@@ -119,8 +119,8 @@ app/build:: .build/redis-enterprise-operator/deployer \
 
 # Operator image is the what Google calls the primary image.
 # Label the primary image with the same tag as deployer image.
-# From the partner portal, primary image is queried using the same tag 
-# as deployer image. When pulling the image from docker hub use 
+# From the partner portal, primary image is queried using the same tag
+# as deployer image. When pulling the image from docker hub use
 # the redis native tag and push that image as primary image with deployer tag.
 .build/redis-enterprise-operator/primary: .build/var/REGISTRY \
 										  .build/var/OPERATOR_TAG \
