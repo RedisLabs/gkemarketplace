@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 RELEASE=${1:-6.001205}
-REPO=${2:-gcr.io/proven-reality-226706/redislabs}
+REPO=${2:-gcr.io/cloud-marketplace/redislabs-public/redis-enterprise)
 SA=$3
 
 RELEASE_SUFFIX=$(echo $RELEASE | sed s/\\./-/g)
