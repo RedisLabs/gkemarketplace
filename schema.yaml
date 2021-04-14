@@ -113,8 +113,11 @@ properties:
         description: Service account
         roles:
         - type: ClusterRole
-          rulesType: PREDEFINED
-          rulesFromRoleName: cluster-admin
+          rulesType: CUSTOM
+          rules:
+            - apiGroups: ["app.redislabs.com", "apiextensions.k8s.io"]
+              resources: ["*"]
+              verbs: ["*"]
   operator.replicas:
     type: integer
     title: Number of Cluster Nodes
@@ -159,7 +162,7 @@ properties:
     default: 15
     minimum: 1
     maximum: 269
-  CDRJobServiceAccount:
+  CRDJobServiceAccount:
     type: string
     title: Service account used by CRDs deployer
     x-google-marketplace:

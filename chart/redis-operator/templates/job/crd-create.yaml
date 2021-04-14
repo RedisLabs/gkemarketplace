@@ -29,7 +29,7 @@ spec:
           mountPath: /crd_to_create/
       dnsPolicy: ClusterFirst
       restartPolicy: Never
-      serviceAccountName: {{ .Values.CDRJobServiceAccount }}
+      serviceAccountName: {{ .Values.CRDJobServiceAccount }}
       volumes:
       - name: crd-configmap
         configMap:

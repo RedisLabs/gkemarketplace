@@ -44,16 +44,12 @@ APP_PARAMETERS ?= { \
   "NAMESPACE": "$(NAMESPACE)" \
 }
 
-#TESTER_IMAGE ?= $(REGISTRY)/tester:$(OPERATOR_TAG)
+TESTER_IMAGE ?= $(REGISTRY)/tester:$(OPERATOR_TAG)
 
 app/build:: .build/redis-enterprise-operator/deployer \
 			.build/redis-enterprise-operator/primary \
 			.build/redis-enterprise-operator/usage-meter \
-			# .build/redis-enterprise-operator/operator \
-			# .build/redis-enterprise-operator/redis \
-			# .build/redis-enterprise-operator/k8s-controller \
-			# .build/redis-enterprise-operator/billing-agent \
-         #    .build/redis-enterprise-operator/tester
+            .build/redis-enterprise-operator/tester
 
 
 .build/redis-enterprise-operator: | .build
@@ -80,44 +76,7 @@ app/build:: .build/redis-enterprise-operator/deployer \
 	docker push "$(APP_DEPLOYER_IMAGE)"
 	@touch "$@"
 
-.build/redis-enterprise-operator/tester: apptest/**/* \
-                                | .build/redis-enterprise-operator
-	$(call print_target, $@)
-	cd apptest/tester \
-	    && docker build --tag "$(TESTER_IMAGE)" .
-	docker push "$(TESTER_IMAGE)"
-	@touch "$@"
-
-.build/redis-enterprise-operator/usage-meter: usage-meter/**/* \
-										  .build/var/REGISTRY \
-                                          .build/var/OPERATOR_TAG \
-                                | .build/redis-enterprise-operator
-	$(call print_target, $@)
-	cd usage-meter \
-	    && docker build --tag "$(REGISTRY)/usagemeter:$(OPERATOR_TAG)" .
-	docker push "$(REGISTRY)/usagemeter:$(OPERATOR_TAG)"
-	@touch "$@"
-
-.build/redis-enterprise-operator/billing-agent: billing-agent/**/* \
-										  .build/var/REGISTRY \
-                                          .build/var/OPERATOR_TAG \
-                                | .build/redis-enterprise-operator
-	$(call print_target, $@)
-	cd billing-agent \
-	    && docker build --tag "$(REGISTRY)/billingagent:$(OPERATOR_TAG)" .
-	docker push "$(REGISTRY)/billingagent:$(OPERATOR_TAG)"
-	@touch "$@"
-
-.build/redis-enterprise-operator/redis: .build/var/REGISTRY \
-                                          .build/var/REDIS_TAG \
-                                          | .build/redis-enterprise-operator
-	$(call print_target, $@)
-	docker pull redislabs/redis:$(REDIS_TAG)
-	docker tag redislabs/redis:$(REDIS_TAG) "$(REGISTRY)/redis:$(REDIS_TAG)"
-	docker push "$(REGISTRY)/redis:$(REDIS_TAG)"
-	@touch "$@"
-
-# Operator image is the what Google calls the primary image.
+# Operator image is the primary image for Redis Enterprise.
 # Label the primary image with the same tag as deployer image.
 # From the partner portal, primary image is queried using the same tag
 # as deployer image. When pulling the image from docker hub use
@@ -132,20 +91,20 @@ app/build:: .build/redis-enterprise-operator/deployer \
 	docker push "$(REGISTRY):$(OPERATOR_TAG)"
 	@touch "$@"
 
-.build/redis-enterprise-operator/operator: .build/var/REGISTRY \
+.build/redis-enterprise-operator/usage-meter: usage-meter/**/* \
+										  .build/var/REGISTRY \
                                           .build/var/OPERATOR_TAG \
-                                          | .build/redis-enterprise-operator
+                                | .build/redis-enterprise-operator
 	$(call print_target, $@)
-	docker pull redislabs/operator:$(OPERATOR_TAG)
-	docker tag redislabs/operator:$(OPERATOR_TAG) "$(REGISTRY)/operator:$(OPERATOR_TAG)"
-	docker push "$(REGISTRY)/operator:$(OPERATOR_TAG)"
+	cd usage-meter \
+	    && docker build --tag "$(REGISTRY)/usagemeter:$(OPERATOR_TAG)" .
+	docker push "$(REGISTRY)/usagemeter:$(OPERATOR_TAG)"
 	@touch "$@"
 
-.build/redis-enterprise-operator/k8s-controller: .build/var/REGISTRY \
-                                          .build/var/OPERATOR_TAG \
-                                          | .build/redis-enterprise-operator
+.build/redis-enterprise-operator/tester: apptest/**/* \
+                                | .build/redis-enterprise-operator
 	$(call print_target, $@)
-	docker pull redislabs/k8s-controller:$(OPERATOR_TAG)
-	docker tag redislabs/k8s-controller:$(OPERATOR_TAG) "$(REGISTRY)/k8s-controller:$(OPERATOR_TAG)"
-	docker push "$(REGISTRY)/k8s-controller:$(OPERATOR_TAG)"
+	cd apptest/tester \
+	    && docker build --tag "$(TESTER_IMAGE)" .
+	docker push "$(TESTER_IMAGE)"
 	@touch "$@"
