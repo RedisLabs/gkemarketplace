@@ -1,5 +1,5 @@
-actions: #TODO test and write new tests
-- name: kubectl smoke test
+actions: 
+- name: kubectl version check
   bashTest:
     script: kubectl version
     expect:
@@ -21,6 +21,18 @@ actions: #TODO test and write new tests
       timeout 120 bash -c '
       until kubectl get deployment -n ${NAMESPACE} | grep redis-enterprise-operator
             do echo "Waiting for redis-enterprise-operator deployment to be created"; sleep 5;
+      done'
+    expect:
+      exitCode:
+        equals: 0
+- name: Waiting for redis enterprise cluster to be running
+  bashTest:
+    script: |
+      timeout 600 bash -c '
+      STATE=" "
+      until [ "$STATE" = "Running" ];
+      do
+        echo "Waiting for redis enterprise cluster to be running"; STATE=$(kubectl get rec/redis-enterprise -o jsonpath='{.status.state}') ; sleep 5;
       done'
     expect:
       exitCode:

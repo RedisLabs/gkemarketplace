@@ -15,6 +15,10 @@ data:
       labels:
         app.kubernetes.io/name: "{{ .Release.Name }}"
     spec:
+      extraLabels:
+        app.kubernetes.io/name: "{{ .Release.Name }}"
+      podAnnotations:
+        app.kubernetes.io/name: "{{ .Release.Name }}"
       nodes: {{ .Values.operator.replicas }}
       persistentSpec:
         enabled: true
