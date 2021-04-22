@@ -1,8 +1,39 @@
-actions:
-- name: dummy test
+actions: 
+- name: kubectl version check
   bashTest:
-    script: |-
-      exit 0
+    script: kubectl version
+    expect:
+      exitCode:
+        equals: 0
+- name: Waiting for RedisEnterpriseClusters CRDs created
+  bashTest:
+    script: |
+      timeout 120 bash -c '
+      until kubectl get crd redisenterpriseclusters.app.redislabs.com;
+            do echo "Waiting for RedisEnterpriseClusters CRDs created"; sleep 5;
+      done'
+    expect:
+      exitCode:
+        equals: 0
+- name: Waiting for redis-enterprise-operator deployment to be created
+  bashTest:
+    script: |
+      timeout 120 bash -c '
+      until kubectl get deployment -n ${NAMESPACE} | grep redis-enterprise-operator
+            do echo "Waiting for redis-enterprise-operator deployment to be created"; sleep 5;
+      done'
+    expect:
+      exitCode:
+        equals: 0
+- name: Waiting for redis enterprise cluster to be running
+  bashTest:
+    script: |
+      timeout 600 bash -c '
+      STATE=" "
+      until [ "$STATE" = "Running" ];
+      do
+        echo "Waiting for redis enterprise cluster to be running"; STATE=$(kubectl get rec/redis-enterprise -o jsonpath='{.status.state}') ; sleep 5;
+      done'
     expect:
       exitCode:
         equals: 0

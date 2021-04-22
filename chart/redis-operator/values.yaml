@@ -1,0 +1,11 @@
+operator:
+  serviceAccountName: null
+  image:
+    repository: null
+    tag: null
+ubbagent:
+  image: null
+usagemeter:
+  image:
+    repository: null
+    tag: null

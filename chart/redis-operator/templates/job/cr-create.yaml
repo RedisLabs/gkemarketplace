@@ -1,0 +1,39 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  annotations:
+  name: {{ template "redis_operator.CRsJob" . }}
+  labels:
+    app.kubernetes.io/name: "{{ .Release.Name }}"
+    app.kubernetes.io/component: cr-job
+spec:
+  ttlSecondsAfterFinished: 300
+  backoffLimit: 3
+  completions: 1
+  parallelism: 1
+  template:
+    spec:
+      initContainers:
+        {{- include "initContainerWaitForCRDsDeploy" . | nindent 6 }}
+      containers:
+      - command:
+        - "/bin/bash"
+        - "-ec"
+        - |
+          if ! kubectl get rec/redis-enterprise 2>/dev/null
+          then
+            kubectl apply -f /cr_to_create/redis-enterprise-cluster.yaml
+          fi
+        image: {{ .Values.deployerHelm.image }}
+        imagePullPolicy: Always
+        name: cr-create
+        volumeMounts:
+        - name: cr-configmap
+          mountPath: /cr_to_create/
+      dnsPolicy: ClusterFirst
+      restartPolicy: OnFailure
+      serviceAccountName: {{ .Values.CRJobServiceAccount }}
+      volumes:
+      - name: cr-configmap
+        configMap:
+          name: {{ template "redis_operator.CRsConfigMap" . }}
