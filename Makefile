@@ -20,17 +20,17 @@ $(info ---- REGISTRY = $(REGISTRY))
 CHART_NAME := redis-operator
 $(info ---- CHART_NAME = $(CHART_NAME))
 
-REDIS_TAG ?= 6.0.12-57
+REDIS_TAG ?= 6.0.20-97
 $(info ---- REDIS_TAG = $(REDIS_TAG))
 
-OPERATOR_TAG ?= 6.0.12-5
+OPERATOR_TAG ?= 6.0.20-12
 $(info ---- OPERATOR_TAG = $(OPERATOR_TAG))
 
 # Deployer tag is used for displaying versions in partner portal.
 # This version only support major.minor so the Redis version major.minor.patch
 # is converted into more readable form of major.2 digit zero padded minor + patch
 # without the hyphen
-DEPLOYER_TAG ?= 6.001205
+DEPLOYER_TAG ?= 6.002012
 $(info ---- DEPLOYER_TAG = $(DEPLOYER_TAG))
 
 # Tag the deployer image with modified version.

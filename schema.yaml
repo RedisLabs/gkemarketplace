@@ -110,7 +110,7 @@ properties:
     x-google-marketplace:
       type: SERVICE_ACCOUNT
       serviceAccount:
-        description: Service account
+        description: Service account for Redis Operator
         roles:
         - type: ClusterRole
           rulesType: CUSTOM
@@ -121,7 +121,7 @@ properties:
   operator.replicas:
     type: integer
     title: Number of Cluster Nodes
-    description: The number of Pods in the solution
+    description: Number of Cluster Nodes
     default: 3
     minimum: 3
     maximum: 11
@@ -168,7 +168,7 @@ properties:
     x-google-marketplace:
       type: SERVICE_ACCOUNT
       serviceAccount:
-        description: Service account
+        description: Service account used by CRDs deployer
         roles:
         - type: ClusterRole
           rulesType: CUSTOM
