@@ -6,6 +6,5 @@ operator:
 ubbagent:
   image: null
 usagemeter:
-  image:
-    repository: null
-    tag: null
+  image: null
+  tag: null

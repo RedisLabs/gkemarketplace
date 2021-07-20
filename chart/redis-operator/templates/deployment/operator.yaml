@@ -81,3 +81,4 @@ spec:
       - name: ubb-configmap
         configMap:
           name: {{ template "redis_operator.UBBAgentConfigMap" . }}
+
