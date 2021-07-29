@@ -80,7 +80,7 @@ git clone https://github.com/RedisLabs/gkemarketplace
 ---
 **NOTE**
 
-Redis version tags are in the format Major.Minor.Patch-Sub but GKE Marketplace requires only Major.Minor, so in order to convert Redis version label to Marketplace use zero padded minor, patch and sub. For example: Redis version 6.0.12-05 would become Marketplace version (DEPLOYER_TAG) 0.001205  
+Redis version tags are in the format Major.Minor.Patch-Sub but GKE Marketplace requires only Major.Minor, so in order to convert Redis version label to Marketplace use zero padded minor, patch and sub. For example: Redis version 6.0.12-05 would become Marketplace version (DEPLOYER_TAG) 6.001205  
 
 ---
 
