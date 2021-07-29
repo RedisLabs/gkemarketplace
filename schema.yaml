@@ -39,11 +39,11 @@ properties:
       type: NAMESPACE
   operator.serviceAccountName:
     type: string
-    title: Service account used by Redis Operator
+    title: Service account for operator
     x-google-marketplace:
       type: SERVICE_ACCOUNT
       serviceAccount:
-        description: Service account
+        description: Service account for operator
         roles:
         - type: ClusterRole
           rulesType: CUSTOM
@@ -106,11 +106,11 @@ properties:
               verbs: ["*"]            
   CRJobServiceAccount:
     type: string
-    title: Service account used by Redis Operator
+    title: Service account for custom resources
     x-google-marketplace:
       type: SERVICE_ACCOUNT
       serviceAccount:
-        description: Service account for Redis Operator
+        description: Service account for custom resources
         roles:
         - type: ClusterRole
           rulesType: CUSTOM
@@ -164,11 +164,11 @@ properties:
     maximum: 269
   CRDJobServiceAccount:
     type: string
-    title: Service account used by CRDs deployer
+    title: Service account for custom resource definitions
     x-google-marketplace:
       type: SERVICE_ACCOUNT
       serviceAccount:
-        description: Service account used by CRDs deployer
+        description: Service account for custom resource definitions
         roles:
         - type: ClusterRole
           rulesType: CUSTOM

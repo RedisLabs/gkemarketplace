@@ -21,7 +21,7 @@ spec:
     - description: 'User Guide: Redis Enterprise'
       url: https://support.redislabs.com
     notes: |-
-      See more details and manual installation instructions here https://github.com/RedisLabs/gkemarketplace
+      See more details and manual installation instructions here https://github.com/RedisLabs/gkemarketplace/README.md
   selector:
     matchLabels:
       app.kubernetes.io/name: "{{ .Release.Name }}"
@@ -32,8 +32,6 @@ spec:
     kind: ConfigMap
   - group: v1
     kind: ServiceAccount
-  - group: v1
-    kind: Job
   - group: v1
     kind: Pod
   - group: v1
