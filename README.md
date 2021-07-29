@@ -97,9 +97,11 @@ export REPO=gcr.io/cloud-marketplace/redislabs-public/redis-enterprise
 The license key is a kubernetes secret, add a metadata.name for set to application instance name (see APP_INSTANCE_NAME env variable) with a suffix “-reportingsecret” (exactly). For example, if instance name is ```redis-enterprise-operator``` then reporting secret ```metadata.name``` must be ```redis-enterprise-operator-reportingsecret```.
 
 
-For Development and Testing (get fake_reporting_secret.yaml from GCS first). 
-gsutil cp gs://cloud-marketplace-tools/reporting_secrets/fake_reporting_secret.yaml .
+For Development and Testing (get fake_reporting_secret.yaml from GCS first) and then modify the metadata.name
 
+```shell
+gsutil cp gs://cloud-marketplace-tools/reporting_secrets/fake_reporting_secret.yaml .
+```
 
 For Development (fake_reporting_secret.yaml) or Production (license-key.yaml) add the following to yaml after the apiVersion line
 
