@@ -1,11 +1,11 @@
 # Overview
 
-This document describes installation process for [Redis Enterprise](https://github.com/RedisLabs/redis-enterprise-k8s-docs) via GKE Market Place. There are two ways to install Redis Enterprise in GKE, one using GKE Console UI or using CLI.  
+This document describes the installation process for [Redis Enterprise](https://github.com/RedisLabs/redis-enterprise-k8s-docs) via Google Cloud Marketplace. There are two ways to install Redis Enterprise in GKE, one using GCP Console UI and using CLI.  
 
 ## Quick install with Google Cloud Marketplace (from GKE Console)
 
 Get up and running with a few clicks! Install this Redis Enterprise app to a
-Google Kubernetes Engine cluster using Google Cloud Marketplace. You can do this from the Applications tab in the GKE page in the Cloud Console.
+Google Kubernetes Engine cluster using Google Cloud Marketplace. You can do this from the Applications tab in the [GKE listing page](https://console.cloud.google.com/marketplace/product/redislabs-public/redis-enterprise) in the Cloud Console.
 
 ## Manual install (CLI)
 
@@ -17,6 +17,7 @@ You'll need the following tools in your development environment:
 - [kubectl](https://kubernetes.io/docs/reference/kubectl/overview/)
 - [docker](https://docs.docker.com/install/)
 - [git](https://git-scm.com/book/en/v2/Getting-Started-Installing-Git)
+- [helm](https://helm.sh/docs/intro/install/)
 
 Configure `gcloud` as a Docker credential helper:
 
@@ -25,7 +26,7 @@ gcloud auth login
 gcloud auth configure-docker
 ```
 
-### Obtain license key from GKE Marketplace
+### Obtain license key from Google Cloud Marketplace
 
 #### Purchase Redis Enterprise on GKE via GCP MP in a GCP project
 
@@ -43,11 +44,11 @@ Save the license key file preferably as ```license-key.yaml```.
 
 ### Permissions
 
-User who builds and deploys the solution would need "Kubernetes Engine Admin" and "Editor" permissions.
+Users who build and deploy the solution would need "Kubernetes Engine Admin" and "Editor" permissions.
 
 ### Create (or use an existing) Google Kubernetes Engine cluster
 
-Redis Enterprise requires at least 5 CPUs and 16GB RAM for each worker node. If you already have an existing cluster that matches the CPU and memory requirements, then skip this step. If not create a new GKE cluster that matches this specification. See below for an example
+Redis Enterprise requires at least 5 CPUs and 16GB RAM for each worker node. If you already have an existing cluster that matches the CPU and memory requirements, then skip this step. If not, create a new GKE cluster that matches this specification. See below for an example
 
 ```shell
 export CLUSTER=redis-cluster
@@ -94,7 +95,7 @@ export REPO=gcr.io/cloud-marketplace/redislabs-public/redis-enterprise
 
 ### Prepare License Key
 
-The license key is a kubernetes secret, add a metadata.name for set to application instance name (see APP_INSTANCE_NAME env variable) with a suffix “-reportingsecret” (exactly). For example, if instance name is ```redis-enterprise-operator``` then reporting secret ```metadata.name``` must be ```redis-enterprise-operator-reportingsecret```.
+The license key is a Kubernetes secret, add a metadata.name for set to application instance name (see APP_INSTANCE_NAME env variable) with a suffix “-reportingsecret” (exactly). For example, if instance name is ```redis-enterprise-operator``` then reporting secret ```metadata.name``` must be ```redis-enterprise-operator-reportingsecret```.
 
 
 For Development and Testing (get fake_reporting_secret.yaml from GCS first) and then modify the metadata.name
@@ -121,7 +122,8 @@ kubectl apply -f https://raw.githubusercontent.com/RedisLabs/redis-enterprise-k8
 
 Create a cluster role for creating cluster scoped custom resources and checking their status. Use the spec below and save it in ```cluster-role.yaml```
 
-```yaml
+```shell
+cat <<EOF | kubectl apply -f -
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
@@ -133,11 +135,13 @@ rules:
 - apiGroups: ["app.redislabs.com", "apiextensions.k8s.io"]
   resources: ["*"]
   verbs: ["*"]
+EOF
 ```
 
 Create cluster role binding e.g. ```cluster-role-binding.yaml``` 
 
-```yaml
+```shell
+cat <<EOF | kubectl apply -f -
 kind: ClusterRoleBinding
 apiVersion: rbac.authorization.k8s.io/v1
 metadata:
@@ -153,13 +157,7 @@ roleRef:
   kind: ClusterRole
   name: redis-operator-cluster-role
   apiGroup: rbac.authorization.k8s.io
-```
-
-Apply the cluster-role and cluster-role-binding
-
-```yaml
-kubectl apply -f cluster-role.yaml
-kubectl apply -f cluster-role-binding.yaml 
+EOF
 ```
 
 ### Install the Application CRD
@@ -187,11 +185,10 @@ helm template "$APP_INSTANCE_NAME" chart/redis-operator  \
   --set ingressAvailable=”True” \
   --set operator.nodeMem=16 \
   --set operator.nodeCpu=5000 \
-  --set operator.redisAdmin=sam@doit-intl.com \
+  --set operator.redisAdmin=admin@example.com \
   --set operator.replicas=3 \
   --set operator.storageClass=standard > redis-bundle.yaml
 ```
-
 
 Apply the generated yaml.
 
