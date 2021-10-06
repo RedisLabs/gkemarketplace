@@ -1,0 +1,57 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  annotations:
+  name: {{ template "redis_operator.CRPatchJob" . }}
+  labels:
+    app.kubernetes.io/name: "{{ .Release.Name }}"
+    app.kubernetes.io/component: cr-patch-job
+spec:
+  ttlSecondsAfterFinished: 300
+  backoffLimit: 0
+  completions: 1
+  parallelism: 1
+  template:
+    spec:
+      initContainers:
+        {{- include "initContainerWaitForCRPatch" . | nindent 6 }}    
+      containers:
+      - command:
+        - "/bin/bash"
+        - "-ec"
+        - |
+          app_uid="$(kubectl get "applications.app.k8s.io/{{ .Release.Name }}" \
+          --namespace="{{ .Release.Namespace }}" \
+          --output=jsonpath='{.metadata.uid}')"
+          app_api_version="$(kubectl get "applications.app.k8s.io/{{ .Release.Name }}" \
+          --namespace="{{ .Release.Namespace }}" \
+          --output=jsonpath='{.apiVersion}')"
+          patch="$(echo '{}' \
+            | jq '{
+                    "metadata": {
+                      "ownerReferences": [
+                        {
+                          "apiVersion": $app_api_version,
+                          "kind": "Application",
+                          "name": $name,
+                          "uid": $app_uid,
+                          "blockOwnerDeletion": true
+                        }
+                      ],
+                      "labels": {
+                        "app.kubernetes.io/name": $name,
+                        "app.kubernetes.io/namespace": $namespace
+                      }
+                    }
+                  }' \
+                  --arg name {{ .Release.Name }}  \
+                  --arg namespace {{ .Release.Namespace }} \
+                  --arg app_uid $app_uid \
+                  --arg app_api_version $app_api_version)"
+          kubectl patch --namespace="{{ .Release.Namespace }}" RedisEnterpriseCluster/redis-enterprise --patch "$patch" --type merge --output json
+        image: {{ .Values.deployerHelm.image }}
+        imagePullPolicy: Always
+        name: cr-patch
+      dnsPolicy: ClusterFirst
+      restartPolicy: Never
+      serviceAccountName: {{ .Values.CRJobServiceAccount }}

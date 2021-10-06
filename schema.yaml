@@ -28,6 +28,15 @@ x-google-marketplace:
       requests:
         cpu: 4000m
         memory: 15Gi
+  deployerServiceAccount:
+    description: Service account for Deployer
+    roles:
+    - type: ClusterRole
+      rulesType: CUSTOM
+      rules:
+        - apiGroups: [""]
+          resources: ["persistentvolumes", "clusterroles", "clusterrolebindings"]
+          verbs: ["get", "watch", "list", "update", "patch", "create", "delete"]
 properties:
   name:
     type: string
@@ -83,7 +92,7 @@ properties:
               verbs: ["create", "delete", "get" , "update", "list", "watch"]
             - apiGroups: [""]
               resources: ["persistentvolumeclaims"]
-              verbs: ["create", "delete", "get" , "update"]
+              verbs: ["create", "delete", "get" , "update", "list"]
             # needed rbac rules for services controller
             - apiGroups: [""]
               resources: ["pods"]
@@ -115,7 +124,7 @@ properties:
         - type: ClusterRole
           rulesType: CUSTOM
           rules:
-            - apiGroups: ["app.redislabs.com", "apiextensions.k8s.io"]
+            - apiGroups: ["app.k8s.io", "app.redislabs.com", "apiextensions.k8s.io"]
               resources: ["*"]
               verbs: ["*"]
   operator.replicas:

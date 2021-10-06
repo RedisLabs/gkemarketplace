@@ -26,8 +26,6 @@ spec:
     matchLabels:
       app.kubernetes.io/name: "{{ .Release.Name }}"
   componentKinds:
-  - group: apps/v1
-    kind: Deployment
   - group: v1
     kind: ConfigMap
   - group: v1
@@ -41,7 +39,6 @@ spec:
   - group: apps/v1
     kind: StatefulSet
   - group: v1
+    kind: PersistentVolume
+  - group: v1
     kind: PersistentVolumeClaim
-  - group: app.redislabs.com/v1
-    kind: RedisEnterpriseCluster
-    

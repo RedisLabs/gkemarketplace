@@ -5,26 +5,18 @@ actions:
     expect:
       exitCode:
         equals: 0
-- name: Waiting for RedisEnterpriseClusters CRDs created
+- name: Waiting for RedisEnterpriseClusters (and implicitly RedisEnterpriseDatabase) CRDs created
   bashTest:
     script: |
-      timeout 120 bash -c '
+      timeout 300 bash -c '
       until kubectl get crd redisenterpriseclusters.app.redislabs.com;
             do echo "Waiting for RedisEnterpriseClusters CRDs created"; sleep 5;
-      done'
+      done
+      '
     expect:
       exitCode:
         equals: 0
-- name: Waiting for redis-enterprise-operator deployment to be created
-  bashTest:
-    script: |
-      timeout 120 bash -c '
-      until kubectl get deployment -n ${NAMESPACE} | grep redis-enterprise-operator
-            do echo "Waiting for redis-enterprise-operator deployment to be created"; sleep 5;
-      done'
-    expect:
-      exitCode:
-        equals: 0
+  
 - name: Waiting for redis enterprise cluster to be running
   bashTest:
     script: |
@@ -32,8 +24,20 @@ actions:
       STATE=" "
       until [ "$STATE" = "Running" ];
       do
-        echo "Waiting for redis enterprise cluster to be running"; STATE=$(kubectl get rec/redis-enterprise -o jsonpath='{.status.state}') ; sleep 5;
+        echo "Waiting for redis enterprise cluster to be running"; STATE=$(kubectl get -n ${NAMESPACE} rec/redis-enterprise -o jsonpath='{.status.state}') ; sleep 5;
       done'
+    expect:
+      exitCode:
+        equals: 0
+- name: Explicitly delete REC to pass verification.
+  bashTest:
+    script: |
+      timeout 1200 bash -c '
+      kubectl delete -n ${NAMESPACE} rec/redis-enterprise; 
+      sleep 60;
+      kubectl delete -n ${NAMESPACE} deployment.apps/redis-enterprise-operator;
+      sleep 60
+      '
     expect:
       exitCode:
         equals: 0
