@@ -157,6 +157,10 @@ properties:
     type: string
     description: Storage class
     default: standard
+    x-google-marketplace:
+      type: STORAGE_CLASS
+      storageClass:
+        type: SSD
   operator.nodeCpu:
     title: Node CPU [millis]
     type: integer
