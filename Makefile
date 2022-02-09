@@ -12,8 +12,10 @@ include ../var.Makefile
 #REGISTRY ?= marketplace.gcr.io/google/redis-enterprise-operator
 # Artifact repo
 #REGISTRY := us-central1-docker.pkg.dev/proven-reality-226706/redis-market-place
-# Container repo
-REGISTRY := gcr.io/proven-reality-226706/redislabs
+# the repo the publish copies from?
+#REGISTRY := gcr.io/proven-reality-226706/redislabs
+# CI registry
+REGISTRY ?= gcr.io/redislabs-k8s-dev-238506/gkemp-redis-ci
 
 $(info ---- REGISTRY = $(REGISTRY))
 
@@ -36,7 +38,7 @@ $(info ---- DEPLOYER_TAG = $(DEPLOYER_TAG))
 # Tag the deployer image with modified version.
 APP_DEPLOYER_IMAGE := $(REGISTRY)/deployer:$(DEPLOYER_TAG)
 
-NAME ?= redis-enterprise-operator-1
+NAME ?= redis-enterprise-operator-ci
 NAMESPACE ?= redis
 
 APP_PARAMETERS ?= { \
@@ -45,6 +47,12 @@ APP_PARAMETERS ?= { \
 }
 
 TESTER_IMAGE ?= $(REGISTRY)/tester:$(OPERATOR_TAG)
+
+.PHONY: dev/install
+dev/install: crd/install | .build/app/dev
+	.build/app/dev install \
+	--deployer='$(APP_DEPLOYER_IMAGE)' --parameters='{"name": "redis-enterprise-operator", "namespace": "$(NAMESPACE)", "operator.nodeCpu": 5000, "operator.nodeMem": 16, "reportingSecret": "gs://cloud-marketplace-tools/reporting_secrets/fake_reporting_secret.yaml"}' | tee install.log
+
 
 app/build:: .build/redis-enterprise-operator/deployer \
 			.build/redis-enterprise-operator/primary \
