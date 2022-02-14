@@ -28,6 +28,10 @@ $(info ---- REDIS_TAG = $(REDIS_TAG))
 OPERATOR_TAG ?= 6.0.20-12
 $(info ---- OPERATOR_TAG = $(OPERATOR_TAG))
 
+# The repo to pull the operator image from Docker Hub registry.
+OPERATOR_REPO ?= operator
+$(info ---- OPERATOR_REPO = $(OPERATOR_REPO))
+
 # Deployer tag is used for displaying versions in partner portal.
 # This version only support major.minor so the Redis version major.minor.patch
 # is converted into more readable form of major.2 digit zero padded minor + patch
@@ -94,8 +98,8 @@ app/build:: .build/redis-enterprise-operator/deployer \
                                           .build/var/DEPLOYER_TAG \
                                           | .build/redis-enterprise-operator
 	$(call print_target, $@)
-	docker pull redislabs/operator:$(OPERATOR_TAG)
-	docker tag redislabs/operator:$(OPERATOR_TAG) "$(REGISTRY):$(OPERATOR_TAG)"
+	docker pull redislabs/$(OPERATOR_REPO):$(OPERATOR_TAG)
+	docker tag redislabs/$(OPERATOR_REPO):$(OPERATOR_TAG) "$(REGISTRY):$(OPERATOR_TAG)"
 	docker push "$(REGISTRY):$(OPERATOR_TAG)"
 	@touch "$@"
 
