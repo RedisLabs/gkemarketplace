@@ -3,11 +3,6 @@
 include ../app.Makefile
 # crd.Makefile provides targets to install Application CRD.
 include ../crd.Makefile
-# gcloud.Makefile provides default values for REGISTRY and NAMESPACE derived from local
-# gcloud and kubectl environments.
-include ../gcloud.Makefile
-include ../var.Makefile
-
 # Production repo
 #REGISTRY ?= marketplace.gcr.io/google/redis-enterprise-operator
 # Artifact repo
@@ -16,6 +11,10 @@ include ../var.Makefile
 #REGISTRY := gcr.io/proven-reality-226706/redislabs
 # CI registry
 REGISTRY ?= gcr.io/redislabs-k8s-dev-238506/gkemp-redis-ci
+# gcloud.Makefile provides default values for REGISTRY and NAMESPACE derived from local
+# gcloud and kubectl environments.
+include ../gcloud.Makefile
+include ../var.Makefile
 
 $(info ---- REGISTRY = $(REGISTRY))
 
