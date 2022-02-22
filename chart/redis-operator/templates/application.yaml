@@ -22,6 +22,7 @@ spec:
       url: https://support.redislabs.com
     notes: |-
       See more details and manual installation instructions here https://github.com/RedisLabs/gkemarketplace/README.md
+      Before removing the Application, make sure to delete any REDB resources and the 'rec' resource from the k8s cluster.
   selector:
     matchLabels:
       app.kubernetes.io/name: "{{ .Release.Name }}"
@@ -36,6 +37,8 @@ spec:
     kind: Job
   - group: v1
     kind: Service
+  - group: apps/v1
+    kind: Deployment
   - group: apps/v1
     kind: StatefulSet
   - group: v1

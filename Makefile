@@ -36,7 +36,9 @@ $(info ---- OPERATOR_REPO = $(OPERATOR_REPO))
 # This version only support major.minor so the Redis version major.minor.patch
 # is converted into more readable form of major.2 digit zero padded minor + patch
 # without the hyphen
-DEPLOYER_TAG ?= 6.002012
+# This can also have a different patch number from the OPERATOR_TAG to indicate
+# a marketplace-only change
+DEPLOYER_TAG ?= 6.002052
 $(info ---- DEPLOYER_TAG = $(DEPLOYER_TAG))
 
 # Tag the deployer image with modified version.
