@@ -71,6 +71,7 @@ app/build:: .build/redis-enterprise-operator/deployer \
 .build/redis-enterprise-operator/deployer: deployer/* \
 								  chart/**/* \
                                   schema.yaml \
+								  .build/var/DEPLOYER_TAG \
                                   .build/var/APP_DEPLOYER_IMAGE \
                                   .build/var/MARKETPLACE_TOOLS_TAG \
                                   .build/var/REGISTRY \
