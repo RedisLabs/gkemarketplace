@@ -22,7 +22,11 @@ spec:
       url: https://support.redislabs.com
     notes: |-
       See more details and manual installation instructions here https://github.com/RedisLabs/gkemarketplace/README.md
-      Before removing the Application, make sure to delete any REDB resources and the 'rec' resource from the k8s cluster.
+      ## Important - Before Deleting
+      **Before deleting the Application, make sure to delete any Custom Resources from the K8s cluster**:
+      - **first any REDB resources**
+      - **followed by deleting the `rec` (instance of REC)**
+      - then the Application can be safely Deleted
   selector:
     matchLabels:
       app.kubernetes.io/name: "{{ .Release.Name }}"
