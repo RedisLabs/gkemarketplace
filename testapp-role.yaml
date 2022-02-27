@@ -9,3 +9,6 @@ rules:
   - apiGroups: ["app.k8s.io"]
     resources: ["applications"]
     verbs: ["*"]
+  - apiGroups: [""]
+    resources: ["services"]
+    verbs: ["*"]

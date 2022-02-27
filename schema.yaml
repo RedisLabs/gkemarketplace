@@ -133,6 +133,9 @@ properties:
             - apiGroups: ["apps"]
               resources: ["deployments"]
               verbs: ["*"]
+            - apiGroups: [""]
+              resources: ["services"]
+              verbs: ["*"]
   operator.replicas:
     type: integer
     title: Number of Cluster Nodes

@@ -49,6 +49,7 @@ spec:
                   --arg app_uid $app_uid \
                   --arg app_api_version $app_api_version)"
           kubectl patch --namespace="{{ .Release.Namespace }}" deploy/redis-enterprise-operator --patch "$patch" --type merge --output json
+          kubectl patch --namespace="{{ .Release.Namespace }}" service/admission --patch "$patch" --type merge --output json
         image: {{ .Values.deployerHelm.image }}
         imagePullPolicy: Always
         name: deploy-patch
