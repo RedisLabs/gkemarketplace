@@ -37,7 +37,7 @@ $(info ---- OPERATOR_REPO = $(OPERATOR_REPO))
 # without the hyphen
 # This can also have a different patch number from the OPERATOR_TAG to indicate
 # a marketplace-only change
-DEPLOYER_TAG := 6.002053
+DEPLOYER_TAG ?= 6.002053
 $(info ---- DEPLOYER_TAG = $(DEPLOYER_TAG))
 
 # Tag the deployer image with modified version.
