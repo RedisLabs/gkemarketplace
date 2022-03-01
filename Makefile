@@ -21,10 +21,10 @@ $(info ---- REGISTRY = $(REGISTRY))
 CHART_NAME := redis-operator
 $(info ---- CHART_NAME = $(CHART_NAME))
 
-REDIS_TAG ?= 6.0.20-97
+REDIS_TAG ?= 6.2.10-83
 $(info ---- REDIS_TAG = $(REDIS_TAG))
 
-OPERATOR_TAG ?= 6.0.20-12
+OPERATOR_TAG ?= 6.2.10-3
 $(info ---- OPERATOR_TAG = $(OPERATOR_TAG))
 
 # The repo to pull the operator image from Docker Hub registry.
@@ -37,7 +37,7 @@ $(info ---- OPERATOR_REPO = $(OPERATOR_REPO))
 # without the hyphen
 # This can also have a different patch number from the OPERATOR_TAG to indicate
 # a marketplace-only change
-DEPLOYER_TAG ?= 6.002053
+DEPLOYER_TAG ?= 6.021001
 $(info ---- DEPLOYER_TAG = $(DEPLOYER_TAG))
 
 # Tag the deployer image with modified version.

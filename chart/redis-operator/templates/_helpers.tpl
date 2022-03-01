@@ -53,6 +53,7 @@
       do
         echo "Waiting for redis enterprise operator to be active"; STATE=$(kubectl get --namespace="{{ .Release.Namespace }}" rec/redis-enterprise -o jsonpath='{.status.state}') ; sleep 5;
       done 
+      echo "Redia Enterprise Cluster resource is Active"
     '
 
   name: wait-for-cr-patch-created

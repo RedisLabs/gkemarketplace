@@ -65,46 +65,52 @@ properties:
           rules:         
             - apiGroups: ["rbac.authorization.k8s.io", ""]
               resources: ["roles", "serviceaccounts", "rolebindings"]
-              verbs: ["*"]
+              verbs: ["bind", "escalate", "impersonate", "userextras",
+                      "create", "get", "list", "watch", "update", "patch",
+                      "delete", "deletecollection"]
             - apiGroups:
                 - app.redislabs.com
               resources:
-                - "*"
-              verbs:
-                - "*"
+                - "redisenterpriseclusters"
+                - "redisenterpriseclusters/status"
+                - "redisenterpriseclusters/finalizers"
+                - "redisenterprisedatabases"
+                - "redisenterprisedatabases/status"
+                - "redisenterprisedatabases/finalizers"
+              verbs: ["delete", "deletecollection", "get", "list", "patch",
+                      "create", "update", "watch"]
             - apiGroups: [""]
               resources: ["secrets"]
-              verbs: ["*"]
+              verbs: ["update", "get", "read", "list", "listallnamespaces",
+                      "watch", "watchlist", "watchlistallnamespaces", "create",
+                      "patch", "replace", "delete", "deletecollection"]
             - apiGroups: [""]
               resources: ["endpoints"]
               verbs: ["get", "list", "watch"]
             - apiGroups: [""]
               resources: ["events"]
-              verbs: ["create"]
+              verbs: ["create", "patch"]
             - apiGroups: ["apps"]
               resources: ["deployments", "statefulsets", "replicasets"]
-              verbs: ["*"]
+              verbs: ["create", "delete", "deletecollection", "get", "list",
+                      "patch", "update", "watch"]
             - apiGroups: ["policy"]
               resources: ["poddisruptionbudgets"]
-              verbs: ["create", "delete", "get"]
+              verbs: ["create", "delete", "get", "list", "watch"]
             - apiGroups: [""]
               resources: ["configmaps"]
               verbs: ["create", "delete", "get" , "update", "list", "watch"]
             - apiGroups: [""]
               resources: ["persistentvolumeclaims"]
-              verbs: ["create", "delete", "get" , "update", "list"]
+              verbs: ["create", "delete", "get" , "update", "list", "watch"]
             # needed rbac rules for services controller
             - apiGroups: [""]
               resources: ["pods"]
-              verbs: ["get", "watch", "list", "update", "patch"]
+              verbs: ["get", "watch", "list", "update", "patch", "delete"]
             - apiGroups: [""]
               resources: ["services"]
               verbs: ["get", "watch", "list", "update", "patch", "create", "delete"]
-            - apiGroups:
-                - route.openshift.io
-              resources: ["routes", "routes/custom-host"]
-              verbs: ["*"]
-            - apiGroups: ["extensions"]
+            - apiGroups: ["policy"]
               resources: ["podsecuritypolicies"]
               resourceNames:
                 - redis-enterprise-psp
@@ -112,7 +118,16 @@ properties:
                 - use
             - apiGroups: ["extensions"]
               resources: ["ingresses"]
-              verbs: ["*"]            
+              verbs: ["create", "patch", "replace", "delete",
+                      "deletecollection", "read", "list", "listallnamespaces",
+                      "watch", "watchlist", "watchlistallnamespaces",
+                      "patchstatus", "readstatus", "replacestatus", "update"]
+            - apiGroups: ["networking.k8s.io"]
+              resources: ["ingresses"]
+              verbs: ["create", "patch", "replace", "delete",
+                      "deletecollection", "read", "list", "listallnamespaces",
+                      "watch", "watchlist", "watchlistallnamespaces",
+                      "patchstatus", "readstatus", "replacestatus", "update"]
   DeployJobServiceAccount:
     type: string
     title: Service account for custom resources
