@@ -113,19 +113,28 @@ properties:
             - apiGroups: ["extensions"]
               resources: ["ingresses"]
               verbs: ["*"]            
-  CRJobServiceAccount:
+  DeployJobServiceAccount:
     type: string
     title: Service account for custom resources
     x-google-marketplace:
       type: SERVICE_ACCOUNT
       serviceAccount:
-        description: Service account for custom resources
+        description: Service account for ownerReference chain
         roles:
         - type: ClusterRole
           rulesType: CUSTOM
           rules:
-            - apiGroups: ["app.k8s.io", "app.redislabs.com", "apiextensions.k8s.io"]
+            - apiGroups: ["app.k8s.io", "apiextensions.k8s.io"]
               resources: ["*"]
+              verbs: ["*"]
+        - type: Role
+          rulesType: CUSTOM
+          rules:
+            - apiGroups: ["apps"]
+              resources: ["deployments"]
+              verbs: ["*"]
+            - apiGroups: [""]
+              resources: ["services"]
               verbs: ["*"]
   operator.replicas:
     type: integer

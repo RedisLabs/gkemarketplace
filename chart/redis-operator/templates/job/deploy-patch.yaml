@@ -2,10 +2,10 @@ apiVersion: batch/v1
 kind: Job
 metadata:
   annotations:
-  name: {{ template "redis_operator.CRPatchJob" . }}
+  name: {{ template "redis_operator.DeployPatchJob" . }}
   labels:
     app.kubernetes.io/name: "{{ .Release.Name }}"
-    app.kubernetes.io/component: cr-patch-job
+    app.kubernetes.io/component: deploy-patch-job
 spec:
   ttlSecondsAfterFinished: 300
   backoffLimit: 0
@@ -14,7 +14,7 @@ spec:
   template:
     spec:
       initContainers:
-        {{- include "initContainerWaitForCRPatch" . | nindent 6 }}    
+        {{- include "initContainerWaitForOperator" . | nindent 6 }}
       containers:
       - command:
         - "/bin/bash"
@@ -48,10 +48,11 @@ spec:
                   --arg namespace {{ .Release.Namespace }} \
                   --arg app_uid $app_uid \
                   --arg app_api_version $app_api_version)"
-          kubectl patch --namespace="{{ .Release.Namespace }}" RedisEnterpriseCluster/redis-enterprise --patch "$patch" --type merge --output json
+          kubectl patch --namespace="{{ .Release.Namespace }}" deploy/redis-enterprise-operator --patch "$patch" --type merge --output json
+          kubectl patch --namespace="{{ .Release.Namespace }}" service/admission --patch "$patch" --type merge --output json
         image: {{ .Values.deployerHelm.image }}
         imagePullPolicy: Always
-        name: cr-patch
+        name: deploy-patch
       dnsPolicy: ClusterFirst
       restartPolicy: Never
-      serviceAccountName: {{ .Values.CRJobServiceAccount }}
+      serviceAccountName: {{ .Values.DeployJobServiceAccount }}

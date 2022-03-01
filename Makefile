@@ -3,11 +3,6 @@
 include ../app.Makefile
 # crd.Makefile provides targets to install Application CRD.
 include ../crd.Makefile
-# gcloud.Makefile provides default values for REGISTRY and NAMESPACE derived from local
-# gcloud and kubectl environments.
-include ../gcloud.Makefile
-include ../var.Makefile
-
 # Production repo
 #REGISTRY ?= marketplace.gcr.io/google/redis-enterprise-operator
 # Artifact repo
@@ -16,6 +11,10 @@ include ../var.Makefile
 #REGISTRY := gcr.io/proven-reality-226706/redislabs
 # CI registry
 REGISTRY ?= gcr.io/redislabs-k8s-dev-238506/gkemp-redis-ci
+# gcloud.Makefile provides default values for REGISTRY and NAMESPACE derived from local
+# gcloud and kubectl environments.
+include ../gcloud.Makefile
+include ../var.Makefile
 
 $(info ---- REGISTRY = $(REGISTRY))
 
@@ -36,7 +35,9 @@ $(info ---- OPERATOR_REPO = $(OPERATOR_REPO))
 # This version only support major.minor so the Redis version major.minor.patch
 # is converted into more readable form of major.2 digit zero padded minor + patch
 # without the hyphen
-DEPLOYER_TAG ?= 6.002012
+# This can also have a different patch number from the OPERATOR_TAG to indicate
+# a marketplace-only change
+DEPLOYER_TAG ?= 6.002053
 $(info ---- DEPLOYER_TAG = $(DEPLOYER_TAG))
 
 # Tag the deployer image with modified version.
@@ -70,6 +71,7 @@ app/build:: .build/redis-enterprise-operator/deployer \
 .build/redis-enterprise-operator/deployer: deployer/* \
 								  chart/**/* \
                                   schema.yaml \
+								  .build/var/DEPLOYER_TAG \
                                   .build/var/APP_DEPLOYER_IMAGE \
                                   .build/var/MARKETPLACE_TOOLS_TAG \
                                   .build/var/REGISTRY \

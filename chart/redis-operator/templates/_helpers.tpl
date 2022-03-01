@@ -6,8 +6,8 @@
 {{- printf "%s-crd-job" .Release.Name | trunc 63 -}}
 {{- end -}}
 
-{{- define "redis_operator.CRPatchJob" -}}
-{{- printf "%s-cr-patch-job" .Release.Name | trunc 63 -}}
+{{- define "redis_operator.DeployPatchJob" -}}
+{{- printf "%s-deploy-patch-job" .Release.Name | trunc 63 -}}
 {{- end -}}
 
 {{- define "redis_operator.CRsConfigMap" -}}
@@ -42,16 +42,16 @@
   image: {{ .Values.deployerHelm.image }}
 {{- end -}}
 
-{{- define "initContainerWaitForCRPatch" -}}
+{{- define "initContainerWaitForOperator" -}}
 - command:
   - "/bin/bash"
   - "-ec"
   - |
     timeout 600 bash -c '
-      STATE=" "
-      until [ "$STATE" = "Running" ];
+      STATE="PendingCreation"
+      while [ "$STATE" = "PendingCreation" ];
       do
-        echo "Waiting for redis enterprise cluster to be running"; STATE=$(kubectl get --namespace="{{ .Release.Namespace }}" rec/redis-enterprise -o jsonpath='{.status.state}') ; sleep 5;
+        echo "Waiting for redis enterprise operator to be active"; STATE=$(kubectl get --namespace="{{ .Release.Namespace }}" rec/redis-enterprise -o jsonpath='{.status.state}') ; sleep 5;
       done 
     '
 
