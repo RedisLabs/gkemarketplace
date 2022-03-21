@@ -42,3 +42,7 @@ COPY --from=build /tmp/test/$CHART_NAME.tar.gz /data-test/chart/
 COPY --from=build /tmp/apptest/schema.yaml /data-test/
 COPY --from=build /tmp/schema.yaml /data/
 
+RUN mkdir -p /crd_to_create
+ADD deployer/rec_crd.yaml /crd_to_create/rec_crd.yaml
+ADD deployer/redb_crd.yaml /crd_to_create/redb_crd.yaml
+
