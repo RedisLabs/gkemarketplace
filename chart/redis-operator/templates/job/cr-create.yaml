@@ -47,7 +47,7 @@ spec:
                 name: admission
                 path: /admission
               caBundle: $CERT
-            admissionReviewVersions: ["v1", "v1beta1"]
+            admissionReviewVersions: ["v1beta1"]
           EOF
           if ! kubectl get rec/redis-enterprise 2>/dev/null
           then
