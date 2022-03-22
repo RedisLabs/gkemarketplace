@@ -20,10 +20,6 @@ spec:
         - "/bin/bash"
         - "-ec"
         - |
-          if ! kubectl get rec/redis-enterprise 2>/dev/null
-          then
-            kubectl apply -f /cr_to_create/redis-enterprise-cluster.yaml
-          fi
           until kubectl get secret admission-tls;
             do echo "Waiting for admission-tls secret"; sleep 5;
           done
@@ -52,7 +48,11 @@ spec:
                 path: /admission
               caBundle: $CERT
             admissionReviewVersions: ["v1", "v1beta1"]
-            EOF
+          EOF
+          if ! kubectl get rec/redis-enterprise 2>/dev/null
+          then
+            kubectl apply -f /cr_to_create/redis-enterprise-cluster.yaml
+          fi
         image: {{ .Values.deployerHelm.image }}
         imagePullPolicy: Always
         name: cr-create
