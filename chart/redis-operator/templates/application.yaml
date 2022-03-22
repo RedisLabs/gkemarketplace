@@ -26,7 +26,7 @@ spec:
       #### Before deleting the Application, make sure to delete any Custom Resources from the K8s cluster:
       ##### 1. first any REDB resources
       ##### 2. followed by deleting the `rec` (instance of REC)
-      ##### 3. then delete the ValidatingWebhookConfiguration named `redb.admission.redislabs`
+      ##### 3. then delete the ValidatingWebhookConfiguration named `redb.admission.redis.com`
       ##### 4. only then the Application can be safely Deleted
   selector:
     matchLabels:
