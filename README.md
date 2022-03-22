@@ -120,6 +120,13 @@ kubectl apply -f https://raw.githubusercontent.com/RedisLabs/redis-enterprise-k8
 kubectl apply -f https://raw.githubusercontent.com/RedisLabs/redis-enterprise-k8s-docs/master/service_account.yaml
 ```
 
+Since `schema.yaml` configures RBAC for the jobs, but is not used even for this
+kind of deployment, an alternative is needed. `testapp-*.yaml` files are the
+namespaced Role portion, and this is the ClusterRole portion. Together these
+cover the RBAC used by the service accounts of the various deployer jobs.
+(In the bundle - generated via helm below - you may notice that the
+`serviceAccountName` fields for the deployer accounts are blank.)
+
 Create a cluster role for creating cluster scoped custom resources and checking their status. Use the spec below and save it in ```cluster-role.yaml```
 
 ```shell
@@ -129,6 +136,9 @@ kind: ClusterRole
 metadata:
   name: redis-operator-cluster-role
 rules:
+- apiGroups: ["admissionregistration.k8s.io"]
+  resources: ["validatingwebhookconfigurations"]
+  verbs: ["*"]
 - apiGroups: ["apiextensions.k8s.io"]
   resources: ["customresourcedefinitions"]
   verbs: ["get", "create", "list", "patch"]

@@ -61,7 +61,7 @@ spec:
           mountPath: /cr_to_create/
       dnsPolicy: ClusterFirst
       restartPolicy: OnFailure
-      serviceAccountName: {{ .Values.CRJobServiceAccount }}
+      serviceAccountName: {{ .Values.DeployJobServiceAccount }}
       volumes:
       - name: cr-configmap
         configMap:
