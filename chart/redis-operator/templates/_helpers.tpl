@@ -29,7 +29,7 @@
   - |
     timeout 120 bash -c '
     COUNTER=0
-    until kubectl get crd redisenterpriseclusters.app.redislabs.com;
+    until kubectl get crd redisenterpriseclusters.app.redislabs.com redisenterprisedatabases.app.redislabs.com;
       do ((COUNTER++)); echo "Waiting for Redis CRDs to be created, counter: ${COUNTER}"; sleep 5;
     done
     echo "Finished waiting for Redis CRDs to be created"'
