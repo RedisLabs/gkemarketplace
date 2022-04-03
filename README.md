@@ -136,11 +136,20 @@ kind: ClusterRole
 metadata:
   name: redis-operator-cluster-role
 rules:
+- apiGroups: ["apiextensions.k8s.io"]
+  resources: ["customresourcedefinitions"]
+  verbs: ["get", "create", "list", "patch"]
+- apiGroups: ["app.k8s.io"]
+  resources: ["applications"]
+  verbs: ["get", "create", "list", "patch"]
 - apiGroups: ["admissionregistration.k8s.io"]
   resources: ["validatingwebhookconfigurations"]
   verbs: ["*"]
-- apiGroups: ["apiextensions.k8s.io"]
-  resources: ["customresourcedefinitions"]
+- apiGroups: ["apps"]
+  resources: ["deployments"]
+  verbs: ["get", "create", "list", "patch"]
+- apiGroups: [""]
+  resources: ["secrets", "services"]
   verbs: ["get", "create", "list", "patch"]
 - apiGroups: ["app.redislabs.com", "apiextensions.k8s.io"]
   resources: ["*"]
