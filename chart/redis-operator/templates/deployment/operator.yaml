@@ -22,7 +22,17 @@ spec:
           command:
             - redis-enterprise-operator
           imagePullPolicy: Always
+          envFrom:
+            - configMapRef:
+                name: operator-environment-config
+                optional: true
+          ports:
+            - containerPort: 8080
           env:
+            - name: POD_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
             - name: WATCH_NAMESPACE
               valueFrom:
                 fieldRef:
@@ -33,8 +43,6 @@ spec:
                   fieldPath: metadata.name
             - name: OPERATOR_NAME
               value: redis-enterprise-operator
-            - name: DATABASE_CONTROLLER_ENABLED
-              value: "true"
           resources:
             limits:
               cpu: 4000m
@@ -42,6 +50,56 @@ spec:
             requests:
               cpu: 500m
               memory: 256Mi
+          livenessProbe:
+            failureThreshold: 3
+            successThreshold: 1
+            periodSeconds: 5
+            timeoutSeconds: 10
+            httpGet:
+              path: /healthz
+              port: 8080
+              scheme: HTTP
+        - name: admission
+          image: {{ .Values.operator.image.repository }}:{{ .Values.operator.image.tag }}
+          command:
+            - /usr/local/bin/admission
+          imagePullPolicy: Always
+          envFrom:
+            - configMapRef:
+                name: operator-environment-config
+                optional: true
+          ports:
+            - containerPort: 443
+          env:
+            - name: POD_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+          resources:
+            limits:
+              cpu: 1000m
+              memory: 512Mi
+            requests:
+              cpu: 250m
+              memory: 256Mi
+          readinessProbe:
+            failureThreshold: 3
+            successThreshold: 1
+            periodSeconds: 5
+            timeoutSeconds: 10
+            httpGet:
+              path: /healthz
+              port: 8443
+              scheme: HTTPS
+          livenessProbe:
+            failureThreshold: 3
+            successThreshold: 1
+            periodSeconds: 5
+            timeoutSeconds: 10
+            httpGet:
+              path: /liveness
+              port: 8443
+              scheme: HTTPS
         - name: usage-meter
           image: {{ .Values.usagemeter.image }}:{{ .Values.usagemeter.tag }}
           imagePullPolicy: Always

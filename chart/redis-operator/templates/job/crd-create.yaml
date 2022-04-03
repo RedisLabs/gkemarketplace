@@ -24,13 +24,6 @@ spec:
         image: {{ .Values.deployerHelm.image }}
         imagePullPolicy: Always
         name: crd-create
-        volumeMounts:
-        - name: crd-configmap
-          mountPath: /crd_to_create/
       dnsPolicy: ClusterFirst
       restartPolicy: Never
       serviceAccountName: {{ .Values.CRDJobServiceAccount }}
-      volumes:
-      - name: crd-configmap
-        configMap:
-          name: {{ template "redis_operator.CRDsConfigMap" . }}

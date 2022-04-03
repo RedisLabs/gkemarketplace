@@ -20,6 +20,35 @@ spec:
         - "/bin/bash"
         - "-ec"
         - |
+          until kubectl get secret admission-tls;
+            do echo "Waiting for admission-tls secret"; sleep 5;
+          done
+          echo "found admission-tls secret"
+          CERT=$(kubectl get secret admission-tls -o jsonpath='{.data.cert}')
+          kubectl apply -f - << EOF
+          apiVersion: admissionregistration.k8s.io/v1
+          kind: ValidatingWebhookConfiguration
+          metadata:
+            name: redb.admission.redis.com
+          webhooks:
+          - name: redb.admission.redis.com
+            failurePolicy: Fail
+            matchPolicy: Exact
+            sideEffects: None
+            timeoutSeconds: 30
+            rules:
+            - apiGroups:   ["app.redislabs.com"]
+              apiVersions: ["v1alpha1"]
+              operations:  ["*"]
+              resources:   ["redisenterprisedatabases"]
+            clientConfig:
+              service:
+                namespace: {{ .Release.Namespace }}
+                name: admission
+                path: /admission
+              caBundle: $CERT
+            admissionReviewVersions: ["v1beta1"]
+          EOF
           if ! kubectl get rec/redis-enterprise 2>/dev/null
           then
             kubectl apply -f /cr_to_create/redis-enterprise-cluster.yaml
@@ -32,7 +61,7 @@ spec:
           mountPath: /cr_to_create/
       dnsPolicy: ClusterFirst
       restartPolicy: OnFailure
-      serviceAccountName: {{ .Values.CRJobServiceAccount }}
+      serviceAccountName: {{ .Values.DeployJobServiceAccount }}
       volumes:
       - name: cr-configmap
         configMap:

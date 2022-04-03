@@ -7,7 +7,7 @@ metadata:
     app.kubernetes.io/component: cr-configmap
 data:
   redis-enterprise-cluster.yaml: |-
-    apiVersion: "app.redislabs.com/v1alpha1"
+    apiVersion: "app.redislabs.com/v1"
     kind: "RedisEnterpriseCluster"
     metadata:
       name: "redis-enterprise"
