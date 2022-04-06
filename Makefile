@@ -8,9 +8,9 @@ include ../crd.Makefile
 # Artifact repo
 #REGISTRY := us-central1-docker.pkg.dev/proven-reality-226706/redis-market-place
 # the repo the publish copies from?
-#REGISTRY := gcr.io/proven-reality-226706/redislabs
+REGISTRY := gcr.io/proven-reality-226706/redislabs
 # CI registry
-REGISTRY ?= gcr.io/redislabs-k8s-dev-238506/gkemp-redis-ci
+# REGISTRY ?= gcr.io/redislabs-k8s-dev-238506/gkemp-redis-ci
 # gcloud.Makefile provides default values for REGISTRY and NAMESPACE derived from local
 # gcloud and kubectl environments.
 include ../gcloud.Makefile
