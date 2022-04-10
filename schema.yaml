@@ -154,6 +154,9 @@ properties:
             - apiGroups: [""]
               resources: ["services", "secrets"]
               verbs: ["*"]
+            - apiGroups: ["app.redislabs.com"]
+              resources: ["redisenterpriseclusters"]
+              verbs: ["get", "create", "patch"]
   operator.replicas:
     type: integer
     title: Number of Cluster Nodes
