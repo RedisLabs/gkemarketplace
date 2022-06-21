@@ -31,10 +31,11 @@ $(info ---- OPERATOR_TAG = $(OPERATOR_TAG))
 OPERATOR_REPO ?= operator
 $(info ---- OPERATOR_REPO = $(OPERATOR_REPO))
 
-# Deployer tag is used for displaying versions in partner portal.
-# This version only support major.minor so the Redis version major.minor.patch
-# is converted into more readable form of major.2 digit zero padded minor + patch
-# without the hyphen
+# Deployer tag is used for displaying versions in Producer Portal.
+# Producer Portal requires a minor version tag, and it follow the semver.org officially recommended regex: (/^(0|[1-9]\d*)\.(0|[1-9]\d*)$
+# please view: https://semver.org/#is-there-a-suggested-regular-expression-regex-to-check-a-semver-string
+# the operator tag is converted to the <major ver>.<minorver without dots><build number>
+# i.e.: 6.2.10-34 is converted to 6.2.1034.
 # This can also have a different patch number from the OPERATOR_TAG to indicate
 # a marketplace-only change
 DEPLOYER_TAG ?= 6.021001
@@ -105,7 +106,7 @@ app/build:: .build/redis-enterprise-operator/deployer \
 	docker push "$(REGISTRY):$(OPERATOR_TAG)"
 	@touch "$@"
 
-.build/redis-enterprise-operator/usage-meter: usage-meter/**/* \
+.build/redis-enterprise-operator/usage-meter: usage-meter/* \
 										  .build/var/REGISTRY \
                                           .build/var/OPERATOR_TAG \
                                 | .build/redis-enterprise-operator
