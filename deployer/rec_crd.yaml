@@ -133,7 +133,9 @@ spec:
             description: RedisEnterpriseClusterSpec defines the desired state of RedisEnterpriseCluster
             properties:
               activeActive:
-                description: Specification for ActiveActive setup
+                description: Specification for ActiveActive setup. At most one of
+                  ingressOrRouteSpec or activeActive fields can be set at the same
+                  time.
                 properties:
                   apiIngressUrl:
                     description: RS API URL
@@ -179,6 +181,10 @@ spec:
                     type: string
                   versionTag:
                     type: string
+                  digestHash:
+                    description: 'The digest hash of the image to pull. Version tag must be also specified with the corresponding version, will use the digest hash to pull the image if exists.
+                      Note: This is currently supported only for OLM.'
+                    type: string
                 type: object
               bootstrapperResources:
                 description: Compute resource requirements for bootstrapper containers
@@ -207,8 +213,9 @@ spec:
                     type: object
                 type: object
               clusterCredentialSecretName:
-                description: Secret Name/Path to use for Cluster Credentials.  If left
-                  blank, will use cluster name
+                description: Secret Name/Path to use for Cluster Credentials. To be
+                  used only if ClusterCredentialSecretType is vault. If left blank,
+                  will use cluster name.
                 type: string
               clusterCredentialSecretRole:
                 description: Used only if ClusterCredentialSecretType is vault, to define
@@ -226,6 +233,16 @@ spec:
                   true. Note that this field is cleared automatically after the cluster
                   is recovered
                 type: boolean
+              containerTimezone:
+                description: Container timezone configuration. While the default timezone
+                  on all containers is UTC, this setting can be used to set the timezone
+                  on services rigger/bootstrapper/RS containers. Currently the only
+                  supported value is to propagate the host timezone to all containers.
+                properties:
+                  propagateHost:
+                    description: Identifies that container timezone should be in sync with the host.
+                    type: object
+                type: object
               createServiceAccount:
                 description: Whether to create service account
                 type: boolean
@@ -236,9 +253,10 @@ spec:
                   please view the similar setting for REDB for more info.
                 type: boolean
               encryptPkeys:
-                description: 'Private key encryption - in order to enable, first need
+                description: "Private key encryption - in order to enable, first need
                   to mount ${ephemeralconfdir}/secrets/pem/passphrase and add the passphrase
-                  and then set fields value to ''true'' Possible values: true/false'
+                  and then set fields value to ''true'' Possible values: true/false'. Note: this feature
+                  is currently unsupported."
                 type: boolean      
               certificates:
                 description: RS Cluster Certificates.
@@ -289,6 +307,42 @@ spec:
                       type: string
                   type: object
                 type: array
+              ingressOrRouteSpec:
+                description: Access configurations for the Redis Enterprise Cluster
+                  and Databases. Note - this feature is currently in preview. For
+                  this feature to take effect, set a boolean environment variable
+                  with the name "ENABLE_ALPHA_FEATURES" to True. This variable can
+                  be set via the redis-enterprise-operator pod spec, or through the
+                  operator-environment-config Config Map. At most one of ingressOrRouteSpec
+                  or activeActive fields can be set at the same time.
+                properties:
+                  apiFqdnUrl:
+                    description: RS API URL
+                    type: string
+                  dbFqdnSuffix:
+                    description: DB ENDPOINT SUFFIX - will be used to set the db host
+                      ingress <db name><db fqdn suffix>. Creates a host name so it
+                      should be unique if more than one db is created on the cluster
+                      with the same name
+                    type: string
+                  ingressAnnotations:
+                    additionalProperties:
+                      type: string
+                    description: Additional annotations to set on ingress resources
+                      created by the operator
+                    type: object
+                  method:
+                    description: Used to distinguish between different platforms implementation.
+                    enum:
+                    - openShiftRoute
+                    - ingress
+                    - istio
+                    type: string
+                required:
+                - apiFqdnUrl
+                - dbFqdnSuffix
+                - method
+                type: object
               license:
                 description: Redis Enterprise License
                 type: string
@@ -307,7 +361,11 @@ spec:
               ocspConfiguration:
                 description: An API object that represents the cluster's OCSP configuration.
                   To enable OCSP, the cluster's proxy certificate should contain the
-                  OCSP responder URL.
+                  OCSP responder URL. Note - This is an ALPHA Feature. For this feature
+                  to take effect, set a boolean environment variable with the name
+                  "ENABLE_ALPHA_FEATURES" to True. This variable can be set via the
+                  redis-enterprise-operator pod spec, or through the operator-environment-config
+                  Config Map.
                 properties:
                   ocspFunctionality:
                     description: Whether to enable/disable OCSP mechanism for the
@@ -2949,6 +3007,10 @@ spec:
                     description: Repository
                     type: string
                   versionTag:
+                    type: string
+                  digestHash:
+                    description: 'The digest hash of the image to pull. Version tag must be also specified with the corresponding version, will use the digest hash to pull the image if exists.
+                      Note: This is currently supported only for OLM.'
                     type: string
                 type: object
               redisEnterpriseNodeResources:
@@ -6208,7 +6270,11 @@ spec:
                 type: string
               redisOnFlashSpec:
                 description: Stores configurations specific to redis on flash. If provided, the cluster will be capable of
-                  creating redis on flash databases
+                  creating redis on flash databases. Note - This is an ALPHA Feature. For this feature
+                  to take effect, set a boolean environment variable with the name
+                  "ENABLE_ALPHA_FEATURES" to True. This variable can be set via the
+                  redis-enterprise-operator pod spec, or through the operator-environment-config
+                  Config Map.
                 properties:
                   enabled:
                     type: boolean
@@ -6964,7 +7030,9 @@ spec:
             description: RedisEnterpriseClusterSpec defines the desired state of RedisEnterpriseCluster
             properties:
               activeActive:
-                description: Specification for ActiveActive setup
+                description: Specification for ActiveActive setup. At most one of
+                  ingressOrRouteSpec or activeActive fields can be set at the same
+                  time.
                 properties:
                   apiIngressUrl:
                     description: RS API URL
@@ -6986,6 +7054,7 @@ spec:
                     enum:
                     - openShiftRoute
                     - ingress
+                    - istio
                     type: string
                 required:
                 - apiIngressUrl
@@ -7038,8 +7107,9 @@ spec:
                     type: object
                 type: object
               clusterCredentialSecretName:
-                description: Secret Name/Path to use for Cluster Credentials.  If left
-                  blank, will use cluster name
+                description: Secret Name/Path to use for Cluster Credentials. To be
+                  used only if ClusterCredentialSecretType is vault. If left blank,
+                  will use cluster name.
                 type: string
               clusterCredentialSecretRole:
                 description: Used only if ClusterCredentialSecretType is vault, to define
@@ -7057,6 +7127,16 @@ spec:
                   true. Note that this field is cleared automatically after the cluster
                   is recovered
                 type: boolean
+              containerTimezone:
+                description: Container timezone configuration. While the default timezone
+                  on all containers is UTC, this setting can be used to set the timezone
+                  on services rigger/bootstrapper/RS containers. Currently the only
+                  supported value is to propagate the host timezone to all containers.
+                properties:
+                  propagateHost:
+                    description: Identifies that container timezone should be in sync with the host.
+                    type: object
+                type: object
               createServiceAccount:
                 description: Whether to create service account
                 type: boolean
@@ -7120,6 +7200,42 @@ spec:
                       type: string
                   type: object
                 type: array
+              ingressOrRouteSpec:
+                description: Access configurations for the Redis Enterprise Cluster
+                  and Databases. Note - this feature is currently in preview. For
+                  this feature to take effect, set a boolean environment variable
+                  with the name "ENABLE_ALPHA_FEATURES" to True. This variable can
+                  be set via the redis-enterprise-operator pod spec, or through the
+                  operator-environment-config Config Map. At most one of ingressOrRouteSpec
+                  or activeActive fields can be set at the same time.
+                properties:
+                  apiFqdnUrl:
+                    description: RS API URL
+                    type: string
+                  dbFqdnSuffix:
+                    description: DB ENDPOINT SUFFIX - will be used to set the db host
+                      ingress <db name><db fqdn suffix>. Creates a host name so it
+                      should be unique if more than one db is created on the cluster
+                      with the same name
+                    type: string
+                  ingressAnnotations:
+                    additionalProperties:
+                      type: string
+                    description: Additional annotations to set on ingress resources
+                      created by the operator
+                    type: object
+                  method:
+                    description: Used to distinguish between different platforms implementation.
+                    enum:
+                    - openShiftRoute
+                    - ingress
+                    - istio
+                    type: string
+                required:
+                - apiFqdnUrl
+                - dbFqdnSuffix
+                - method
+                type: object
               license:
                 description: Redis Enterprise License
                 type: string
@@ -7138,7 +7254,11 @@ spec:
               ocspConfiguration:
                 description: An API object that represents the cluster's OCSP configuration.
                   To enable OCSP, the cluster's proxy certificate should contain the
-                  OCSP responder URL.
+                  OCSP responder URL. Note - This is an ALPHA Feature. For this feature
+                  to take effect, set a boolean environment variable with the name
+                  "ENABLE_ALPHA_FEATURES" to True. This variable can be set via the
+                  redis-enterprise-operator pod spec, or through the operator-environment-config
+                  Config Map.
                 properties:
                   ocspFunctionality:
                     description: Whether to enable/disable OCSP mechanism for the
@@ -9782,6 +9902,10 @@ spec:
                     type: string
                   versionTag:
                     type: string
+                  digestHash:
+                    description: 'The digest hash of the image to pull. Version tag must be also specified with the corresponding version, will use the digest hash to pull the image if exists.
+                      Note: This is currently supported only for OLM.'
+                    type: string
                 type: object
               redisEnterpriseNodeResources:
                 description: Compute resource requirements for Redis Enterprise containers
@@ -9902,6 +10026,10 @@ spec:
                     description: Repository
                     type: string
                   versionTag:
+                    type: string
+                  digestHash:
+                    description: 'The digest hash of the image to pull. Version tag must be also specified with the corresponding version, will use the digest hash to pull the image if exists.
+                      Note: This is currently supported only for OLM.'
                     type: string
                 type: object
               redisEnterpriseServicesRiggerResources:
@@ -13040,7 +13168,11 @@ spec:
                 type: string
               redisOnFlashSpec:
                 description: Stores configurations specific to redis on flash. If provided, the cluster will be capable of
-                  creating redis on flash databases
+                  creating redis on flash databases. Note - This is an ALPHA Feature. For this feature
+                  to take effect, set a boolean environment variable with the name
+                  "ENABLE_ALPHA_FEATURES" to True. This variable can be set via the
+                  redis-enterprise-operator pod spec, or through the operator-environment-config
+                  Config Map.
                 properties:
                   enabled:
                     type: boolean
