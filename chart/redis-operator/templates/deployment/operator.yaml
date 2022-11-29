@@ -2,6 +2,8 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: redis-enterprise-operator
+  labels:
+    app: redis-enterprise
   namespace: {{ .Release.Namespace }}
 spec:
   replicas: 1
@@ -12,6 +14,7 @@ spec:
     metadata:
       labels:
         name: redis-enterprise-operator
+        app: redis-enterprise
     spec:
       serviceAccountName: {{ .Values.operator.serviceAccountName }}
       initContainers:
@@ -53,8 +56,8 @@ spec:
           livenessProbe:
             failureThreshold: 3
             successThreshold: 1
-            periodSeconds: 5
-            timeoutSeconds: 10
+            periodSeconds: 10
+            timeoutSeconds: 5
             httpGet:
               path: /healthz
               port: 8080
@@ -69,9 +72,13 @@ spec:
                 name: operator-environment-config
                 optional: true
           ports:
-            - containerPort: 443
+            - containerPort: 8443
           env:
             - name: POD_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+            - name: WATCH_NAMESPACE
               valueFrom:
                 fieldRef:
                   fieldPath: metadata.namespace
@@ -85,8 +92,8 @@ spec:
           readinessProbe:
             failureThreshold: 3
             successThreshold: 1
-            periodSeconds: 5
-            timeoutSeconds: 10
+            periodSeconds: 10
+            timeoutSeconds: 5
             httpGet:
               path: /healthz
               port: 8443
@@ -94,8 +101,9 @@ spec:
           livenessProbe:
             failureThreshold: 3
             successThreshold: 1
-            periodSeconds: 5
-            timeoutSeconds: 10
+            periodSeconds: 10
+            timeoutSeconds: 5
+            initialDelaySeconds: 15
             httpGet:
               path: /liveness
               port: 8443
