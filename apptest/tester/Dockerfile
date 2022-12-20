@@ -1,17 +1,16 @@
-FROM gcr.io/cloud-marketplace-tools/testrunner:0.1.0
+FROM gcr.io/cloud-marketplace-tools/testrunner:0.1.2
 
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    ca-certificates \
-    gettext \
-    jq \
-    uuid-runtime \
-    wget \
+ENV WAIT_FOR_READY_TIMEOUT 3600
+ENV TESTER_TIMEOUT 3600
+
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+    curl wget dnsutils netcat jq \
     && rm -rf /var/lib/apt/lists/*
 
-RUN wget -q -O /bin/kubectl \
-    https://storage.googleapis.com/kubernetes-release/release/v1.12.0/bin/linux/amd64/kubectl \
-      && chmod 755 /bin/kubectl
-
+RUN curl -Lo /usr/local/bin/kubectl https://dl.k8s.io/release/v1.22.0/bin/linux/amd64/kubectl
+RUN chmod +x /usr/local/bin/kubectl
+ 
 COPY tests/basic-suite.yaml /tests/basic-suite.yaml
 COPY tester.sh /tester.sh
 

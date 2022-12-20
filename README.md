@@ -1,40 +1,15 @@
 # Overview
 
-Redis-Enterprise is 
+This document describes the installation process for [Redis Enterprise](https://github.com/RedisLabs/redis-enterprise-k8s-docs) via Google Cloud Marketplace. There are two ways to install Redis Enterprise in GKE, one using GCP Console UI and using CLI.  
 
-[Learn more](https://www.redislabs.com/).
+## Quick install with Google Cloud Marketplace (from GKE Console)
 
+Get up and running with a few clicks! Install this Redis Enterprise app to a
+Google Kubernetes Engine cluster using Google Cloud Marketplace. You can do this from the Applications tab in the [GKE listing page](https://console.cloud.google.com/marketplace/product/redislabs-public/redis-enterprise) in the Cloud Console.
 
-## Design
+## Manual install (CLI)
 
-![Architecture diagram](resources/image)
-
-### Solution Information
-
-Redis-Enterprise cluster is deployed within a Kubernetes `StatefulSet`.
-
-The deployment creates two services:
-
-- client-facing one, designed to be used for client connections to the Redis-Enterprise
-  cluster with port forwarding or using a LoadBalancer,
-- and service discovery - a headless service for connections between
-  the Redis-Enterprise nodes.
-
-Redis-Enterprise K8s application has the following ports configured:
-
-
-# Installation
-
-## Quick install with Google Cloud Marketplace
-
-Get up and running with a few clicks! Install this Redis-Enterprise app to a
-Google Kubernetes Engine cluster using Google Cloud Marketplace.
-
-## Command line instructions
-
-### Prerequisites
-
-#### Set up command-line tools
+### Set up command-line tools
 
 You'll need the following tools in your development environment:
 
@@ -42,193 +17,238 @@ You'll need the following tools in your development environment:
 - [kubectl](https://kubernetes.io/docs/reference/kubectl/overview/)
 - [docker](https://docs.docker.com/install/)
 - [git](https://git-scm.com/book/en/v2/Getting-Started-Installing-Git)
+- [helm](https://helm.sh/docs/intro/install/)
 
 Configure `gcloud` as a Docker credential helper:
 
 ```shell
+gcloud auth login
 gcloud auth configure-docker
 ```
 
-#### Create a Google Kubernetes Engine cluster
+### Obtain license key from Google Cloud Marketplace
 
-Create a new cluster from the command line.
+#### Purchase Redis Enterprise on GKE via GCP MP in a GCP project
+
+See the following screenshot for an example
+
+![Purchase Redis Enterprise](images/license-1.png)
+
+#### Generate a license file for the GCP project for the subscription entitlement for billing
+
+See the following screenshot for an example. Click the “Generate license key” button to generate the license key.  It will automatically be downloaded onto your computer. 
+
+![Get License file for Redis Enterprise](images/license-2.png)
+
+Save the license key file preferably as ```license-key.yaml```.
+
+### Permissions
+
+Users who build and deploy the solution would need "Kubernetes Engine Admin" and "Editor" permissions.
+
+### Create (or use an existing) Google Kubernetes Engine cluster
+
+Redis Enterprise requires at least 5 CPUs and 16GB RAM for each worker node. If you already have an existing cluster that matches the CPU and memory requirements, then skip this step. If not, create a new GKE cluster that matches this specification. See below for an example
 
 ```shell
 export CLUSTER=redis-cluster
 export ZONE=us-west1-a
-
-gcloud container clusters create "$CLUSTER" --zone "$ZONE"
+gcloud container clusters create $CLUSTER --zone $ZONE --machine-type n2-standard-8
 ```
-
-Configure `kubectl` to connect to the new cluster.
 
 ```shell
 gcloud container clusters get-credentials "$CLUSTER" --zone "$ZONE"
 ```
-
-#### Clone this repo
-
-Clone this repo and the associated tools repo.
+Create a namespace where redis cluster and database should be created
 
 ```shell
-git clone  https://github.com/GoogleCloudPlatform/redis-enterprise-k8s-docs.git
+kubectl create namespace redis
 ```
 
-#### Install the Application resource definition
-
-An Application resource is a collection of individual Kubernetes components,
-such as Services, Deployments, and so on, that you can manage as a group.
-
-To set up your cluster to understand Application resources, run the following command:
-
 ```shell
-kubectl apply -f "https://raw.githubusercontent.com/GoogleCloudPlatform/marketplace-k8s-app-tools/master/crd/app-crd.yaml"
+kubectl config set-context --current --namespace=redis
 ```
 
-You need to run this command once.
-
-The Application resource is defined by the
-[Kubernetes SIG-apps](https://github.com/kubernetes/community/tree/master/sig-apps)
-community. The source code can be found on
-[github.com/kubernetes-sigs/application](https://github.com/kubernetes-sigs/application).
-
-### Install the Application
-
-Navigate to the `marketplace` directory:
+### Clone the repo 
 
 ```shell
-cd gcpmarketplace
-```
-
-#### Configure the app with environment variables
-
-Choose an instance name and
-[namespace](https://kubernetes.io/docs/concepts/overview/working-with-objects/namespaces/)
-for the app. In most cases, you can use the `default` namespace.
-
-```shell
-export APP_INSTANCE_NAME=redis-labs-1
-export NAMESPACE=default
-```
-
-Set the number of replicas:
-
-```shell
-export REPLICAS=3
+git clone https://github.com/RedisLabs/gkemarketplace
 ```
 
 
-Set the username for the app:
+### Prepare Environment variables
+
+---
+**NOTE**
+
+Redis version tags are in the format Major.Minor.Patch-Sub but GKE Marketplace requires only Major.Minor, so in order to convert Redis version label to Marketplace use zero padded minor, patch and sub. For example: Redis version 6.0.12-05 would become Marketplace version (DEPLOYER_TAG) 6.001205  
+
+---
 
 ```shell
-export REDIS_ADMIN=admin@acme.com
+export APP_INSTANCE_NAME=redis-enterprise-operator
+export NAMESPACE=redis
+export TAG=6.2.18-3
+export DEPLOYER_TAG=6.021001
+export REPO=gcr.io/cloud-marketplace/redislabs-public/redis-enterprise
 ```
 
+### Prepare License Key
 
-Set the CPU and Memory for nodes:
+The license key is a Kubernetes secret, add a metadata.name for set to application instance name (see APP_INSTANCE_NAME env variable) with a suffix “-reportingsecret” (exactly). For example, if instance name is ```redis-enterprise-operator``` then reporting secret ```metadata.name``` must be ```redis-enterprise-operator-reportingsecret```.
+
+
+For Development and Testing (get fake_reporting_secret.yaml from GCS first) and then modify the metadata.name
 
 ```shell
-export NODE_CPU=1000
-export NODE_MEM=1
+gsutil cp gs://cloud-marketplace-tools/reporting_secrets/fake_reporting_secret.yaml .
 ```
 
+For Development (fake_reporting_secret.yaml) or Production (license-key.yaml) add the following to yaml after the apiVersion line
 
-Configure the container images:
+```yaml
+metadata:
+  name: redis-enterprise-operator-reportingsecret
+```
+
+### Create Roles, RoleBindings and ServiceAccount
+
+Create namespaced roles (for the redis namespace ) and service account. Note the service account name, which you need for creating cluster roles.
+```
+kubectl apply -f https://raw.githubusercontent.com/RedisLabs/redis-enterprise-k8s-docs/master/role.yaml
+kubectl apply -f https://raw.githubusercontent.com/RedisLabs/redis-enterprise-k8s-docs/master/role_binding.yaml
+kubectl apply -f https://raw.githubusercontent.com/RedisLabs/redis-enterprise-k8s-docs/master/service_account.yaml
+```
+
+Since `schema.yaml` configures RBAC for the jobs, but is not used even for this
+kind of deployment, an alternative is needed. `testapp-*.yaml` files are the
+namespaced Role portion, and this is the ClusterRole portion. Together these
+cover the RBAC used by the service accounts of the various deployer jobs.
+(In the bundle - generated via helm below - you may notice that the
+`serviceAccountName` fields for the deployer accounts are blank.)
+
+Create a cluster role for creating cluster scoped custom resources and checking their status. Use the spec below and save it in ```cluster-role.yaml```
 
 ```shell
-export IMAGE_REDIS=redislabs/operator:498_f987b08
-export IMAGE_UBBAGENT=gcr.io/proven-reality-226706/redislabs/ubbagent:1.9
+cat <<EOF | kubectl apply -f -
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: redis-operator-cluster-role
+rules:
+- apiGroups: ["apiextensions.k8s.io"]
+  resources: ["customresourcedefinitions"]
+  verbs: ["get", "create", "list", "patch"]
+- apiGroups: ["app.k8s.io"]
+  resources: ["applications"]
+  verbs: ["get", "create", "list", "patch"]
+- apiGroups: ["admissionregistration.k8s.io"]
+  resources: ["validatingwebhookconfigurations"]
+  verbs: ["*"]
+- apiGroups: ["apps"]
+  resources: ["deployments"]
+  verbs: ["get", "create", "list", "patch"]
+- apiGroups: [""]
+  resources: ["secrets", "services"]
+  verbs: ["get", "create", "list", "patch"]
+- apiGroups: ["app.redislabs.com", "apiextensions.k8s.io"]
+  resources: ["*"]
+  verbs: ["*"]
+EOF
 ```
 
-#### Create namespace in your Kubernetes cluster
-
-If you use a different namespace than the `default`, run the command below to create a new namespace:
+Create cluster role binding e.g. ```cluster-role-binding.yaml``` 
 
 ```shell
-kubectl create namespace "$NAMESPACE"
+cat <<EOF | kubectl apply -f -
+kind: ClusterRoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: redis-operator-cluster-role-binding
+subjects:
+- kind: ServiceAccount
+  name: default
+  namespace: redis
+- kind: ServiceAccount
+  name: redis-enterprise-operator
+  namespace: redis
+roleRef:
+  kind: ClusterRole
+  name: redis-operator-cluster-role
+  apiGroup: rbac.authorization.k8s.io
+EOF
 ```
 
-#### Prerequisites for using Role-Based Access Control
+### Install the Application CRD
 
-If you want to use [role-based access control](https://kubernetes.io/docs/reference/access-authn-authz/rbac/)
-for the app, you must grant your user the ability to create roles in
-Kubernetes by running the following command:
+GKE marketplace integration uses Application resource to make easier to manage RedisEnterprise resources as a single application.
 
 ```shell
-kubectl create clusterrolebinding cluster-admin-binding \
-  --clusterrole cluster-admin \
-  --user $(gcloud config get-value account)
+kubectl apply -f https://raw.githubusercontent.com/GoogleCloudPlatform/marketplace-k8s-app-tools/master/crd/app-crd.yaml
 ```
 
-You need to run this command **once** for the cluster.
-For steps to enable role-based access control in Google Kubernetes Engine, see
-the [Kubernetes Engine documentation](https://cloud.google.com/kubernetes-engine/docs/how-to/role-based-access-control).
+### Generate bundle from helm
 
-#### Expand the manifest template
-
-Use `envsubst` to expand the template. We recommend that you save the
-expanded manifest file for future updates to the application.
-
-1. Expand `RBAC` YAML file. You must configure RBAC related stuff .
-
-    ```shell
-    # Define name of service account
-    export SERVICE_ACCOUNT=redis-enterprise-operator
-    # Expand rbac.yaml.template
-    envsubst '$APP_INSTANCE_NAME $NAMESPACE $SERVICE_ACCOUNT' < scripts/rbac.yaml.template > "${APP_INSTANCE_NAME}_rbac.yaml"
-    ```
-
-1. Expand `Application`/`crd`/`operator`/`ConfigMap` YAML files.
-
-    ```shell
-     awk 'FNR==1 {print "---"}{print}' manifest/* \
-     | envsubst '$APP_INSTANCE_NAME $NAMESPACE $IMAGE_REDIS $REPLICAS $REDIS_ADMIN $SERVICE_ACCOUNT $IMAGE_UBBAGENT $NODE_CPU $NODE_MEM' \
-     > "${APP_INSTANCE_NAME}_manifest.yaml"
-    ```
-
-#### Apply the manifest to your Kubernetes cluster
-
-Use `kubectl` to apply the manifest to your Kubernetes cluster:
+Run the helm template to generate operator deployment. 
 
 ```shell
-# rbac.yaml
-kubectl apply -f "${APP_INSTANCE_NAME}_rbac.yaml" --namespace "${NAMESPACE}"
-# manifest.yaml
-kubectl apply -f "${APP_INSTANCE_NAME}_manifest.yaml" --namespace "${NAMESPACE}"
+helm template "$APP_INSTANCE_NAME" chart/redis-operator  \
+  --namespace "$NAMESPACE" \
+  --set deployerHelm.image="$REPO/deployer:$DEPLOYER_TAG" \
+  --set operator.serviceAccountName="redis-enterprise-operator" \
+  --set operator.image.repository="$REPO" \
+  --set operator.image.tag="$TAG" \
+  --set usagemeter.image="$REPO/usagemeter" \
+  --set usagemeter.tag="$TAG" \
+  --set reportingSecret="$APP_INSTANCE_NAME-reportingsecret" \
+  --set ingressAvailable=”True” \
+  --set operator.nodeMem=16 \
+  --set operator.nodeCpu=5000 \
+  --set operator.redisAdmin=admin@example.com \
+  --set operator.replicas=3 \
+  --set operator.storageClass=standard > redis-bundle.yaml
 ```
 
-#### View the app in the Google Cloud Platform Console
+Apply the generated yaml.
 
-To get the Console URL for your app, run the following command:
+```shell
+kubectl apply -f redis-bundle.yaml
+```
+
+### View the app in the Google Cloud Platform Console
+
+Get the Google Cloud Console URL for your app, then open this URL in your browser:
 
 ```shell
 echo "https://console.cloud.google.com/kubernetes/application/${ZONE}/${CLUSTER}/${NAMESPACE}/${APP_INSTANCE_NAME}"
 ```
 
-To view your app, open the URL in your browser.
+### Get the status of the cluster
 
-#### Get the status of the cluster
-
-By default, the application does not have an external IP address. To get the
-status of the cluster, use `kubectl port-forward` to access the dashboard on the master
-node:
+By default, the application does not have an external IP address. Use `kubectl port-forward` to access the dashboard on the master
+node at `localhost`.
 
 ```
-kubectl port-forward  redis-enterprise-cluster-0 8443
+kubectl port-forward redis-enterprise-cluster-0 8443
 
 ```
 
-#### Getting the Admin Password
+### Getting the Admin Password
 
-See instructions here: https://docs.redislabs.com/latest/rs/faqs/
+See [instructions here](https://docs.redislabs.com/latest/rs/faqs/) under "How to retrieve the username/password for a Redis Enterprise Cluster?"
 
-####  Access the Redis-Enterprise service externally
+In summary, `kubectl get secret redis-enterprise -o yaml|grep password|cut -d':' -f 2|base64 --decode` should get you the password, and you should already know the username (default `admin@example.com`)
+
+###  Access the Redis-Enterprise service externally
 
 ```
 kubectl get services -n $NAMESPACE
 ```
 
-> **NOTE:** It might take some time for the external IP to be provisioned.
+**NOTE:**
+
+1. It might take some time for the external IP to be provisioned.
+2. This works out-of-the-box in GKE but not in Anthos, where special measures are needed to configure the Load Balancer.
 
 
 # Uninstall the Application
@@ -240,67 +260,4 @@ kubectl get services -n $NAMESPACE
 1. From the list of applications, click **Redis-Enterprise**.
 
 1. On the Application Details page, click **Delete**.
-
-## Using the command line
-
-### Prepare the environment
-
-Set your installation name and Kubernetes namespace:
-
-```shell
-export APP_INSTANCE_NAME=redis-enterprise-1
-export NAMESPACE=default
-```
-
-### Delete the resources
-
-> **NOTE:** We recommend to use a kubectl version that is the same as the version of your cluster. Using the same versions of kubectl and the cluster helps avoid unforeseen issues.
-
-To delete the resources, use the expanded manifest file used for the
-installation.
-
-Run `kubectl` on the expanded manifest file:
-
-```shell
-# manifest.yaml
-kubectl delete -f "${APP_INSTANCE_NAME}_manifest.yaml" --namespace "${NAMESPACE}"
-# rbac.yaml
-kubectl delete -f "${APP_INSTANCE_NAME}_rbac.yaml" --namespace "${NAMESPACE}"
-```
-
-Otherwise, delete the resources using types and a label:
-
-```shell
-kubectl delete statefulset,secret,service,configmap,serviceaccount,role,rolebinding,application \
-  --namespace $NAMESPACE \
-  --selector app.kubernetes.io/name=$APP_INSTANCE_NAME
-```
-
-### Delete the persistent volumes of your installation
-
-By design, removal of StatefulSets in Kubernetes does not remove
-PersistentVolumeClaims that were attached to their Pods. This prevents your
-installations from accidentally deleting stateful data.
-
-To remove the PersistentVolumeClaims with their attached persistent disks, run
-the following `kubectl` commands:
-
-```shell
-for pv in $(kubectl get pvc --namespace $NAMESPACE \
-  --selector app.kubernetes.io/name=$APP_INSTANCE_NAME \
-  --output jsonpath='{.items[*].spec.volumeName}');
-do
-  kubectl delete pv/$pv --namespace $NAMESPACE
-done
-
-kubectl delete persistentvolumeclaims \
-  --namespace $NAMESPACE \
-  --selector app.kubernetes.io/name=$APP_INSTANCE_NAME
-```
-
-### Delete the GKE cluster
-
-```
-gcloud container clusters delete "$CLUSTER" --zone "$ZONE"
-```
 

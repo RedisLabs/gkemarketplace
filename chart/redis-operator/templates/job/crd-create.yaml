@@ -1,0 +1,29 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  annotations:
+  name: {{ template "redis_operator.CRDsJob" . }}
+  labels:
+    app.kubernetes.io/name: "{{ .Release.Name }}"
+    app.kubernetes.io/component: crd-job
+spec:
+  ttlSecondsAfterFinished: 300
+  backoffLimit: 0
+  completions: 1
+  parallelism: 1
+  template:
+    spec:
+      containers:
+      - command:
+        - "/bin/bash"
+        - "-ec"
+        - |
+          for crd in /crd_to_create/*;
+            do kubectl apply -f $crd;
+          done
+        image: {{ .Values.deployerHelm.image }}
+        imagePullPolicy: Always
+        name: crd-create
+      dnsPolicy: ClusterFirst
+      restartPolicy: Never
+      serviceAccountName: {{ .Values.CRDJobServiceAccount }}

@@ -1,0 +1,52 @@
+apiVersion: app.k8s.io/v1beta1
+kind: Application # Question: The CRD creation is supposed to pause before creating the  application, but in fact the CRD creation is launched concurrently with  applying this K8s object, so we find that the CRD is not yet available unless we run everything twice!
+metadata:
+  name: "{{ .Release.Name }}"
+  annotations:
+    kubernetes-engine.cloud.google.com/icon: data:image/png;base64,{{ .Files.Get "logo.png" | b64enc | trim }}
+    marketplace.cloud.google.com/deploy-info: '{"partner_id": "redislabs-public", "product_id": {{ .Chart.Name | quote }}, "partner_name": "Redis Labs"}'
+  labels:
+    app.kubernetes.io/name: "{{ .Release.Name }}"
+spec:
+  descriptor:
+    type: Redis Enterprise Operator
+    version: {{ .Values.operator.image.tag | quote }}
+    description: |-
+      Redis Operator makes it easy to deploy and manage Redis Enterprise
+      on Kubernetes.
+    maintainers:
+    - name: Redis Labs
+      url: https://redislabs.com/company/contact/support/
+    links:
+    - description: 'User Guide: Redis Enterprise'
+      url: https://support.redislabs.com
+    notes: |-
+      See more details and manual installation instructions here https://github.com/RedisLabs/gkemarketplace/README.md
+      ## ⚠️  BEFORE DELETING
+      #### Before deleting the Application, make sure to delete any Custom Resources from the K8s cluster:
+      ##### 1. first any REDB resources
+      ##### 2. followed by deleting the `rec` (instance of REC)
+      ##### 3. then delete the ValidatingWebhookConfiguration named `redb.admission.redis.com`
+      ##### 4. only then the Application can be safely Deleted
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: "{{ .Release.Name }}"
+  componentKinds:
+  - group: v1
+    kind: ConfigMap
+  - group: v1
+    kind: ServiceAccount
+  - group: v1
+    kind: Pod
+  - group: v1
+    kind: Job
+  - group: v1
+    kind: Service
+  - group: apps/v1
+    kind: Deployment
+  - group: apps/v1
+    kind: StatefulSet
+  - group: v1
+    kind: PersistentVolume
+  - group: v1
+    kind: PersistentVolumeClaim
