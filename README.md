@@ -88,8 +88,8 @@ Redis version tags are in the format Major.Minor.Patch-Sub but GKE Marketplace r
 ```shell
 export APP_INSTANCE_NAME=redis-enterprise-operator
 export NAMESPACE=redis
-export TAG=6.2.18-3
-export DEPLOYER_TAG=6.021001
+export TAG=6.4.2-4
+export DEPLOYER_TAG=6.424
 export REPO=gcr.io/cloud-marketplace/redislabs-public/redis-enterprise
 ```
 
@@ -187,7 +187,7 @@ GKE marketplace integration uses Application resource to make easier to manage R
 kubectl apply -f https://raw.githubusercontent.com/GoogleCloudPlatform/marketplace-k8s-app-tools/master/crd/app-crd.yaml
 ```
 
-### Generate bundle from helm
+### [Generate bundle from helm](#helm-template-cmd)
 
 Run the helm template to generate operator deployment. 
 
@@ -249,6 +249,27 @@ kubectl get services -n $NAMESPACE
 
 1. It might take some time for the external IP to be provisioned.
 2. This works out-of-the-box in GKE but not in Anthos, where special measures are needed to configure the Load Balancer.
+
+### Upgrade ### 
+In order to upgrade the operator, recreate the bundle.yaml using the helm [command](#helm-template-cmd).<br>
+Make sure these params are updated with the new version:
+1. `deployerHelm.image`
+2. `operator.image.tag`
+3. `usagemeter.tag`
+
+Apply the generated yaml.<br>
+You should expect these operator deployment containers to be updated:
+1. redis-enterprise-operator
+2. admission
+3. usage-meter
+
+In order to upgrade the REC, edit the spec field: 
+```
+redisEnterpriseImageSpec:
+    versionTag: <new-tag>
+```
+
+The redis enterprise STS and the services-rigger will restart with the new version. 
 
 
 # Uninstall the Application
