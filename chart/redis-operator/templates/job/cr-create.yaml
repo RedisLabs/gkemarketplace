@@ -23,15 +23,18 @@ spec:
           until kubectl get secret admission-tls;
             do echo "Waiting for admission-tls secret"; sleep 5;
           done
+          kubectl delete ValidatingWebhookConfiguration redb.admission.redis.com 2> /dev/null \
+            && echo "Deleted redb.admission.redis.com" \
+            || echo "No redb.admission.redis.com to deleted"
           echo "found admission-tls secret"
           CERT=$(kubectl get secret admission-tls -o jsonpath='{.data.cert}')
           kubectl apply -f - << EOF
           apiVersion: admissionregistration.k8s.io/v1
           kind: ValidatingWebhookConfiguration
           metadata:
-            name: redb.admission.redis.com
+            name: redisenterprise.admission.redis.com
           webhooks:
-          - name: redb.admission.redis.com
+          - name: redisenterprise.admission.redis.com
             failurePolicy: Fail
             matchPolicy: Exact
             sideEffects: None
@@ -39,8 +42,8 @@ spec:
             rules:
             - apiGroups:   ["app.redislabs.com"]
               apiVersions: ["v1alpha1"]
-              operations:  ["*"]
-              resources:   ["redisenterprisedatabases"]
+              operations:  ["CREATE", "UPDATE"]
+              resources:   ["redisenterprisedatabases", "redisenterpriseactiveactivedatabases", "redisenterpriseremoteclusters"]
             clientConfig:
               service:
                 namespace: {{ .Release.Namespace }}

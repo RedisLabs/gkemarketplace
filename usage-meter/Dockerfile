@@ -1,7 +1,14 @@
-FROM python:3.8-slim
+FROM registry.access.redhat.com/ubi8-minimal
 
-RUN apt-get update && apt-get install -y curl && apt-get install -y openssl 
-RUN pip install kubernetes requests
+# Update base packages.
+RUN microdnf update -y
+
+# Install python 3.8 and requirements.
+RUN microdnf install python38 && \
+    pip3 install kubernetes requests && \
+    microdnf remove python38-setuptools python38-pip
+
+# Setup the usage-meter app.
 RUN mkdir -p /app
 COPY run.sh /app/
 COPY common.py /app/
