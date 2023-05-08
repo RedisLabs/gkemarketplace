@@ -27,6 +27,7 @@ gcloud auth configure-docker
 ```
 
 ### Obtain license key from Google Cloud Marketplace
+!! Not to be confused with the Redis license, which you would receive from Redis. This license key simply enables the pay as you go billing integration into your GKE account!!
 
 #### Purchase Redis Enterprise on GKE via GCP MP in a GCP project
 
@@ -41,6 +42,8 @@ See the following screenshot for an example. Click the â€œGenerate license keyâ€
 ![Get License file for Redis Enterprise](images/license-2.png)
 
 Save the license key file preferably as ```license-key.yaml```.
+
+!! Reminder, not to be confused with the Redis license, which you would receive from Redis. This license key simply enables the pay as you go billing integration into your GKE account!!
 
 ### Permissions
 
