@@ -1,6 +1,6 @@
 ARG MARKETPLACE_TOOLS_TAG
 
-FROM marketplace.gcr.io/google/debian9 AS build
+FROM marketplace.gcr.io/google/debian11 AS build
 
 ARG CHART_NAME
 
@@ -45,4 +45,6 @@ COPY --from=build /tmp/schema.yaml /data/
 RUN mkdir -p /crd_to_create
 ADD deployer/rec_crd.yaml /crd_to_create/rec_crd.yaml
 ADD deployer/redb_crd.yaml /crd_to_create/redb_crd.yaml
+ADD deployer/rerc_crd.yaml /crd_to_create/rerc_crd.yaml
+ADD deployer/reaadb_crd.yaml /crd_to_create/reaadb_crd.yaml
 
