@@ -10,6 +10,8 @@ spec:
   selector:
     matchLabels:
       name: redis-enterprise-operator
+  strategy:
+    type: Recreate
   template:
     metadata:
       labels:
@@ -23,7 +25,8 @@ spec:
         - name: redis-enterprise-operator
           image: {{ .Values.operator.image.repository }}:{{ .Values.operator.image.tag }}
           command:
-            - redis-enterprise-operator
+          - operator-root
+          - operator
           imagePullPolicy: Always
           envFrom:
             - configMapRef:
@@ -65,7 +68,8 @@ spec:
         - name: admission
           image: {{ .Values.operator.image.repository }}:{{ .Values.operator.image.tag }}
           command:
-            - /usr/local/bin/admission
+          - operator-root
+          - admission
           imagePullPolicy: Always
           envFrom:
             - configMapRef:
