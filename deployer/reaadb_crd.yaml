@@ -29,6 +29,9 @@ spec:
         - jsonPath: .status.linkedRedbs[*]
           name: Linked REDBs
           type: string
+        - jsonPath: .status.replicationStatus
+          name: Replication Status
+          type: string
       subresources:
         status: {}
       schema:
@@ -69,6 +72,12 @@ spec:
                         description: The corresponding ID of the instance in the active-active database.
                         format: int64
                         type: integer
+                      replicationStatus:
+                        description: The replication status of the participating cluster
+                        enum:
+                        - up
+                        - down
+                        type: string
                     required:
                       - name
                     type: object
@@ -82,6 +91,12 @@ spec:
                 redisEnterpriseCluster:
                   description: The Redis Enterprise Cluster Object this Resource is associated
                     with
+                  type: string
+                replicationStatus:
+                  description: The overall replication status
+                  enum:
+                  - up
+                  - down
                   type: string
                 secretsStatus:
                   description: The status of the secrets
