@@ -77,6 +77,12 @@ properties:
                 - "redisenterprisedatabases"
                 - "redisenterprisedatabases/status"
                 - "redisenterprisedatabases/finalizers"
+                - "redisenterpriseactiveactivedatabases"
+                - "redisenterpriseactiveactivedatabases/status"
+                - "redisenterpriseactiveactivedatabases/finalizers"
+                - "redisenterpriseremoteclusters"
+                - "redisenterpriseremoteclusters/status"
+                - "redisenterpriseremoteclusters/finalizers"
               verbs: ["delete", "deletecollection", "get", "list", "patch",
                       "create", "update", "watch"]
             - apiGroups: [""]
