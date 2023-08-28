@@ -372,8 +372,16 @@ spec:
                   changed after creation
                 type: integer
               databaseSecretName:
-                description: The name of the K8s secret that holds the password to the
-                  database.
+                description: The name of the secret that holds the password
+                  to the database (redis databases only).
+                  If secret does not exist, it will be created.
+                  To define the password, create an opaque secret and set the name in the spec.
+                  The password will be taken from the value of the 'password' key.
+                  Use an empty string as value within the secret to disable authentication for the database.
+                  Notes - For Active-Active databases this secret will not be automatically created,
+                  and also, memcached databases must not be set with a value,
+                  and a secret/password will not be automatically created for them.
+                  Use the memcachedSaslSecretName field to set authentication parameters for memcached databases.
                 type: string
               defaultUser:
                 description: Is connecting with a default user allowed?
@@ -391,7 +399,12 @@ spec:
                   and it must not be below 1GB.
                 type: string
               modulesList:
-                description: List of modules associated with database
+                description: List of modules associated with database.
+                  Note - For Active-Active databases this feature is currently in preview. For
+                  this feature to take effect for Active-Active databases, set a boolean environment variable
+                  with the name "ENABLE_ALPHA_FEATURES" to True. This variable can
+                  be set via the redis-enterprise-operator pod spec, or through the
+                  operator-environment-config Config Map.
                 items:
                   description: 'Redis Enterprise Module: https://redislabs.com/redis-enterprise/modules/'
                   properties:

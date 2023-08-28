@@ -1,4 +1,4 @@
-FROM gcr.io/cloud-marketplace-tools/testrunner:0.1.2
+FROM gcr.io/cloud-marketplace-tools/testrunner:0.1.5
 
 ENV WAIT_FOR_READY_TIMEOUT 3600
 ENV TESTER_TIMEOUT 3600

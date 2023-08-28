@@ -10,12 +10,17 @@ spec:
   selector:
     matchLabels:
       name: redis-enterprise-operator
+  strategy:
+    type: Recreate
   template:
     metadata:
       labels:
         name: redis-enterprise-operator
         app: redis-enterprise
     spec:
+      securityContext:
+        seccompProfile:
+          type: RuntimeDefault
       serviceAccountName: {{ .Values.operator.serviceAccountName }}
       initContainers:
         {{- include "initContainerWaitForCRDsDeploy" . | nindent 6 }}
@@ -23,7 +28,8 @@ spec:
         - name: redis-enterprise-operator
           image: {{ .Values.operator.image.repository }}:{{ .Values.operator.image.tag }}
           command:
-            - redis-enterprise-operator
+          - operator-root
+          - operator
           imagePullPolicy: Always
           envFrom:
             - configMapRef:
@@ -62,10 +68,19 @@ spec:
               path: /healthz
               port: 8080
               scheme: HTTP
+          securityContext:
+            privileged: false
+            readOnlyRootFilesystem: true
+            allowPrivilegeEscalation: false
+            runAsNonRoot: true
+            capabilities:
+              drop:
+              - ALL
         - name: admission
           image: {{ .Values.operator.image.repository }}:{{ .Values.operator.image.tag }}
           command:
-            - /usr/local/bin/admission
+          - operator-root
+          - admission
           imagePullPolicy: Always
           envFrom:
             - configMapRef:
@@ -108,6 +123,14 @@ spec:
               path: /liveness
               port: 8443
               scheme: HTTPS
+          securityContext:
+            privileged: false
+            readOnlyRootFilesystem: true
+            allowPrivilegeEscalation: false
+            runAsNonRoot: true
+            capabilities:
+              drop:
+              - ALL
         - name: usage-meter
           image: {{ .Values.usagemeter.image }}:{{ .Values.usagemeter.tag }}
           imagePullPolicy: Always
@@ -118,6 +141,11 @@ spec:
             value: "http://localhost:6080/report"
           - name: METRICS
             value: "--time-period 3600 --shards --report-value shards_used --metric-name redislabs_db_shard_hour"
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+              - ALL
         - name: ubbagent
           image: gcr.io/cloud-marketplace-tools/metering/ubbagent
           imagePullPolicy: IfNotPresent
@@ -140,6 +168,11 @@ spec:
               secretKeyRef:
                 name: "{{ .Values.reportingSecret }}"
                 key: consumer-id
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+              - ALL
           volumeMounts:
             - name: ubb-configmap
               mountPath: /ubbagent/
