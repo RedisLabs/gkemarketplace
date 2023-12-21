@@ -32,5 +32,3 @@ data:
         requests:
           cpu: "{{ .Values.operator.nodeCpu }}m"
           memory: "{{ .Values.operator.nodeMem }}Gi"
-
-
