@@ -1,0 +1,187 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: redis-enterprise-operator
+  labels:
+    app: redis-enterprise
+  namespace: {{ .Release.Namespace }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: redis-enterprise-operator
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        name: redis-enterprise-operator
+        app: redis-enterprise
+    spec:
+      securityContext:
+        seccompProfile:
+          type: RuntimeDefault
+      serviceAccountName: {{ .Values.operator.serviceAccountName }}
+      initContainers:
+        {{- include "initContainerWaitForCRDsDeploy" . | nindent 6 }}
+      containers:
+        - name: redis-enterprise-operator
+          image: {{ .Values.operator.image.repository }}:{{ .Values.operator.image.tag }}
+          command:
+          - operator-root
+          - operator
+          imagePullPolicy: Always
+          envFrom:
+            - configMapRef:
+                name: operator-environment-config
+                optional: true
+          ports:
+            - containerPort: 8080
+          env:
+            - name: POD_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+            - name: WATCH_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: OPERATOR_NAME
+              value: redis-enterprise-operator
+          resources:
+            limits:
+              cpu: 4000m
+              memory: 512Mi
+            requests:
+              cpu: 500m
+              memory: 256Mi
+          livenessProbe:
+            failureThreshold: 3
+            successThreshold: 1
+            periodSeconds: 10
+            timeoutSeconds: 5
+            httpGet:
+              path: /healthz
+              port: 8080
+              scheme: HTTP
+          securityContext:
+            privileged: false
+            readOnlyRootFilesystem: true
+            allowPrivilegeEscalation: false
+            runAsNonRoot: true
+            capabilities:
+              drop:
+              - ALL
+        - name: admission
+          image: {{ .Values.operator.image.repository }}:{{ .Values.operator.image.tag }}
+          command:
+          - operator-root
+          - admission
+          imagePullPolicy: Always
+          envFrom:
+            - configMapRef:
+                name: operator-environment-config
+                optional: true
+          ports:
+            - containerPort: 8443
+          env:
+            - name: POD_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+            - name: WATCH_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+          resources:
+            limits:
+              cpu: 1000m
+              memory: 512Mi
+            requests:
+              cpu: 250m
+              memory: 256Mi
+          readinessProbe:
+            failureThreshold: 3
+            successThreshold: 1
+            periodSeconds: 10
+            timeoutSeconds: 5
+            httpGet:
+              path: /healthz
+              port: 8443
+              scheme: HTTPS
+          livenessProbe:
+            failureThreshold: 3
+            successThreshold: 1
+            periodSeconds: 10
+            timeoutSeconds: 5
+            initialDelaySeconds: 15
+            httpGet:
+              path: /liveness
+              port: 8443
+              scheme: HTTPS
+          securityContext:
+            privileged: false
+            readOnlyRootFilesystem: true
+            allowPrivilegeEscalation: false
+            runAsNonRoot: true
+            capabilities:
+              drop:
+              - ALL
+        - name: usage-meter
+          image: {{ .Values.usagemeter.image }}:{{ .Values.usagemeter.tag }}
+          imagePullPolicy: Always
+          env:
+          - name: INTERVAL
+            value: "360"
+          - name: ENDPOINT
+            value: "http://localhost:6080/report"
+          - name: METRICS
+            value: "--time-period 3600 --shards --report-value shards_used --metric-name redislabs_db_shard_hour"
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+              - ALL
+        - name: ubbagent
+          image: gcr.io/cloud-marketplace-tools/metering/ubbagent
+          imagePullPolicy: IfNotPresent
+          env:
+          - name: AGENT_CONFIG_FILE
+            value: /ubbagent/config.yaml
+          - name: AGENT_LOCAL_PORT
+            value: "6080"
+          - name: AGENT_STATE_DIR
+            value: /opt/persistent/ubbagent
+          - name: AGENT_REPORT_DIR
+            value: /opt/persistent/ubbagent/reports
+          - name: AGENT_ENCODED_KEY
+            valueFrom:
+              secretKeyRef:
+                name: "{{ .Values.reportingSecret }}"
+                key: reporting-key
+          - name: AGENT_CONSUMER_ID
+            valueFrom:
+              secretKeyRef:
+                name: "{{ .Values.reportingSecret }}"
+                key: consumer-id
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+              - ALL
+          volumeMounts:
+            - name: ubb-configmap
+              mountPath: /ubbagent/
+      volumes:
+      - name: ubb-configmap
+        configMap:
+          name: {{ template "redis_operator.UBBAgentConfigMap" . }}
+

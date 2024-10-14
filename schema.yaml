@@ -1,84 +1,239 @@
-application_api_version: v1beta1
-properties:
-  APP_INSTANCE_NAME:
-    type: string
-    x-google-marketplace:
-      type: NAME
-  NAMESPACE:
-    type: string
-    x-google-marketplace:
-      type: NAMESPACE
-  IMAGE_REDIS:
-    type: string
-    default: $REGISTRY:$TAG
-    x-google-marketplace:
-      type: IMAGE
-  SERVICE_ACCOUNT:
-    title: Cluster Admin Service Account
-    description: >-
-      Name of a service account in the target namespace that
-      has cluster-admin permissions. This is needed for the operator
-      to create REDIS CRD and resources.
-    type: string
-    x-google-marketplace:
-      type: SERVICE_ACCOUNT
-      serviceAccount:
-        roles:
-        - type: ClusterRole
-          rulesType: PREDEFINED
-          rulesFromRoleName: cluster-admin
-  REPLICAS:
-    type: integer
-    title: Number of Cluster Nodes
-    description: The number of Pods in the solution
-    default: 3
-    minimum: 3
-    maximum: 11
-  REDIS_ADMIN:
-    type: string
-    title: Redis admin username
-    description: Username to be used for connecting to Redis
-    # https://www.w3.org/TR/html52/sec-forms.html#email-state-typeemail
-    pattern: ^[a-zA-Z0-9.!#$%&'*+\/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$
-    default: admin@example.com
-  IMAGE_UBBAGENT:
-    type: string
-    default: $REGISTRY/ubbagent:$TAG
-    x-google-marketplace:
-      type: IMAGE
-  REPORTING_SECRET:
-    type: string
-    x-google-marketplace:
-      type: REPORTING_SECRET
-  NODE_CPU:
-    title: Node CPU [millis]
-    type: integer
-    description: Each node CPU in millicpu i.e. 1000 equals 1vCPU
-    default: 4000 
-    minimum: 100
-    maximum: 32000
-  NODE_MEM:
-    title: Node Memory [GB]
-    type: integer
-    description: Each node RAM in GB ie 1 equals 1GiB
-    default: 15
-    minimum: 1
-    maximum: 269
-required:
-- APP_INSTANCE_NAME
-- NAMESPACE
-- IMAGE_REDIS
-- SERVICE_ACCOUNT
-- REPLICAS
-- REDIS_ADMIN
-- REPORTING_SECRET
-- IMAGE_UBBAGENT
-- NODE_CPU
-- NODE_MEM
 x-google-marketplace:
+  schemaVersion: v2
+  applicationApiVersion: v1beta1
+  publishedVersion: "$TAG"
+  publishedVersionMetadata:
+    releaseNote: >-
+      A regular update.
+    releaseTypes:
+      - Feature
+    recommended: false
+
+  images:
+    '':
+      properties:
+        operator.image.repository:
+          type: REPO_WITH_REGISTRY
+        operator.image.tag:
+          type: TAG
+    usagemeter:
+      properties:
+        usagemeter.image:
+          type: REPO_WITH_REGISTRY
+        usagemeter.tag:
+          type: TAG
   clusterConstraints:
     resources:
     - replicas: 3
       requests:
         cpu: 4000m
         memory: 15Gi
+  deployerServiceAccount:
+    description: Service account for Deployer
+    roles:
+    - type: ClusterRole
+      rulesType: CUSTOM
+      rules:
+        - apiGroups: [""]
+          resources: ["persistentvolumes", "clusterroles", "clusterrolebindings"]
+          verbs: ["get", "watch", "list", "update", "patch", "create", "delete"]
+properties:
+  name:
+    type: string
+    x-google-marketplace:
+      type: NAME
+  namespace:
+    type: string
+    x-google-marketplace:
+      type: NAMESPACE
+  operator.serviceAccountName:
+    type: string
+    title: Service account for operator
+    x-google-marketplace:
+      type: SERVICE_ACCOUNT
+      serviceAccount:
+        description: Service account for operator
+        roles:
+        - type: ClusterRole
+          rulesType: CUSTOM
+          rules:
+            - apiGroups: ["apiextensions.k8s.io"]
+              resources: ["customresourcedefinitions"]
+              verbs: ["get"]
+        - type: Role
+          rulesType: CUSTOM
+          rules:         
+            - apiGroups: ["rbac.authorization.k8s.io", ""]
+              resources: ["roles", "serviceaccounts", "rolebindings"]
+              verbs: ["bind", "escalate", "impersonate", "userextras",
+                      "create", "get", "list", "watch", "update", "patch",
+                      "delete", "deletecollection"]
+            - apiGroups:
+                - app.redislabs.com
+              resources:
+                - "redisenterpriseclusters"
+                - "redisenterpriseclusters/status"
+                - "redisenterpriseclusters/finalizers"
+                - "redisenterprisedatabases"
+                - "redisenterprisedatabases/status"
+                - "redisenterprisedatabases/finalizers"
+                - "redisenterpriseactiveactivedatabases"
+                - "redisenterpriseactiveactivedatabases/status"
+                - "redisenterpriseactiveactivedatabases/finalizers"
+                - "redisenterpriseremoteclusters"
+                - "redisenterpriseremoteclusters/status"
+                - "redisenterpriseremoteclusters/finalizers"
+              verbs: ["delete", "deletecollection", "get", "list", "patch",
+                      "create", "update", "watch"]
+            - apiGroups: [""]
+              resources: ["secrets"]
+              verbs: ["update", "get", "read", "list", "listallnamespaces",
+                      "watch", "watchlist", "watchlistallnamespaces", "create",
+                      "patch", "replace", "delete", "deletecollection"]
+            - apiGroups: [""]
+              resources: ["endpoints"]
+              verbs: ["get", "list", "watch"]
+            - apiGroups: [""]
+              resources: ["events"]
+              verbs: ["create", "patch"]
+            - apiGroups: ["apps"]
+              resources: ["deployments", "statefulsets", "replicasets"]
+              verbs: ["create", "delete", "deletecollection", "get", "list",
+                      "patch", "update", "watch"]
+            - apiGroups: ["policy"]
+              resources: ["poddisruptionbudgets"]
+              verbs: ["create", "delete", "get", "list", "watch"]
+            - apiGroups: [""]
+              resources: ["configmaps"]
+              verbs: ["create", "delete", "get" , "update", "list", "watch"]
+            - apiGroups: [""]
+              resources: ["persistentvolumeclaims"]
+              verbs: ["create", "delete", "get" , "update", "list", "watch"]
+            # needed rbac rules for services controller
+            - apiGroups: [""]
+              resources: ["pods"]
+              verbs: ["get", "watch", "list", "update", "patch", "delete"]
+            - apiGroups: [""]
+              resources: ["services"]
+              verbs: ["get", "watch", "list", "update", "patch", "create", "delete"]
+            - apiGroups: ["policy"]
+              resources: ["podsecuritypolicies"]
+              resourceNames:
+                - redis-enterprise-psp
+              verbs:
+                - use
+            - apiGroups: ["extensions"]
+              resources: ["ingresses"]
+              verbs: ["create", "patch", "replace", "delete",
+                      "deletecollection", "read", "list", "listallnamespaces",
+                      "watch", "watchlist", "watchlistallnamespaces",
+                      "patchstatus", "readstatus", "replacestatus", "update"]
+            - apiGroups: ["networking.k8s.io"]
+              resources: ["ingresses"]
+              verbs: ["create", "patch", "replace", "delete",
+                      "deletecollection", "read", "list", "listallnamespaces",
+                      "watch", "watchlist", "watchlistallnamespaces",
+                      "patchstatus", "readstatus", "replacestatus", "update"]
+  DeployJobServiceAccount:
+    type: string
+    title: Service account for custom resources
+    x-google-marketplace:
+      type: SERVICE_ACCOUNT
+      serviceAccount:
+        description: Service account for ownerReference chain and CR and admission creation
+        roles:
+        - type: ClusterRole
+          rulesType: CUSTOM
+          rules:
+            - apiGroups: ["app.k8s.io", "apiextensions.k8s.io"]
+              resources: ["*"]
+              verbs: ["*"]
+            - apiGroups: ["admissionregistration.k8s.io"]
+              resources: ["validatingwebhookconfigurations"]
+              verbs: ["*"]
+        - type: Role
+          rulesType: CUSTOM
+          rules:
+            - apiGroups: ["apps"]
+              resources: ["deployments"]
+              verbs: ["*"]
+            - apiGroups: [""]
+              resources: ["services", "secrets"]
+              verbs: ["*"]
+            - apiGroups: ["app.redislabs.com"]
+              resources: ["redisenterpriseclusters"]
+              verbs: ["get", "create", "patch"]
+  operator.replicas:
+    type: integer
+    title: Number of Cluster Nodes
+    description: Number of Cluster Nodes
+    default: 3
+    minimum: 3
+    maximum: 11
+  operator.redisAdmin:
+    type: string
+    title: Redis admin username
+    description: Username to be used for connecting to Redis
+    # https://www.w3.org/TR/html52/sec-forms.html#email-state-typeemail
+    pattern: ^[a-zA-Z0-9.!#$%&'*+\/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$
+    default: admin@example.com
+  ingressAvailable:
+    type: boolean
+    default: true
+    title: Ingress Supported
+    description: Indicates whether the cluster is detected to have Ingress support.
+    x-google-marketplace:
+      type: INGRESS_AVAILABLE
+  reportingSecret:
+    type: string
+    x-google-marketplace:
+      type: REPORTING_SECRET
+  operator.storageClass:
+    title: Storage Class
+    type: string
+    description: Storage class
+    default: standard
+    x-google-marketplace:
+      type: STORAGE_CLASS
+      storageClass:
+        type: SSD
+  operator.nodeCpu:
+    title: Node CPU [millis]
+    type: integer
+    description: Each node CPU in millicpu, i.e. 1000 equals 1vCPU
+    default: 4000
+    minimum: 100
+    maximum: 32000
+  operator.nodeMem:
+    title: Node Memory [GB]
+    type: integer
+    description: Each node RAM in GB, i.e., 1 equals 1GiB
+    default: 15
+    minimum: 1
+    maximum: 269
+  CRDJobServiceAccount:
+    type: string
+    title: Service account for custom resource definitions
+    x-google-marketplace:
+      type: SERVICE_ACCOUNT
+      serviceAccount:
+        description: Service account for custom resource definitions
+        roles:
+        - type: ClusterRole
+          rulesType: CUSTOM
+          rules:
+            - apiGroups: ["apiextensions.k8s.io"]
+              resources: ["customresourcedefinitions"]
+              verbs: ["get","list","create", "patch"]
+  deployerHelm.image:
+    type: string
+    x-google-marketplace:
+      type: DEPLOYER_IMAGE
+required:
+- name
+- namespace
+- operator.storageClass
+- operator.redisAdmin
+- operator.replicas
+- operator.nodeCpu
+- operator.nodeMem
