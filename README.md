@@ -91,8 +91,8 @@ Redis version tags are in the format Major.Minor.Patch-Sub but GKE Marketplace r
 ```shell
 export APP_INSTANCE_NAME=redis-enterprise-operator
 export NAMESPACE=redis
-export TAG=7.4.6-2
-export DEPLOYER_TAG=7.462
+export TAG=7.8.2-6
+export DEPLOYER_TAG=7.826
 export REPO=gcr.io/cloud-marketplace/redislabs-public/redis-enterprise
 ```
 
