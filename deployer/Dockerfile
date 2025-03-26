@@ -35,6 +35,8 @@ FROM gcr.io/cloud-marketplace-tools/k8s/deployer_helm:$MARKETPLACE_TOOLS_TAG
 
 ARG CHART_NAME
 
+LABEL com.googleapis.cloudmarketplace.product.service.name="Redis-Enterprise"
+
 ENV WAIT_FOR_READY_TIMEOUT 3600
 ENV TESTER_TIMEOUT 3600
 
@@ -48,4 +50,3 @@ ADD deployer/rec_crd.yaml /crd_to_create/rec_crd.yaml
 ADD deployer/redb_crd.yaml /crd_to_create/redb_crd.yaml
 ADD deployer/rerc_crd.yaml /crd_to_create/rerc_crd.yaml
 ADD deployer/reaadb_crd.yaml /crd_to_create/reaadb_crd.yaml
-

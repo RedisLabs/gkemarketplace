@@ -116,12 +116,6 @@ properties:
             - apiGroups: [""]
               resources: ["services"]
               verbs: ["get", "watch", "list", "update", "patch", "create", "delete"]
-            - apiGroups: ["policy"]
-              resources: ["podsecuritypolicies"]
-              resourceNames:
-                - redis-enterprise-psp
-              verbs:
-                - use
             - apiGroups: ["extensions"]
               resources: ["ingresses"]
               verbs: ["create", "patch", "replace", "delete",
