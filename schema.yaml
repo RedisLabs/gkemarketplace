@@ -22,6 +22,10 @@ x-google-marketplace:
           type: REPO_WITH_REGISTRY
         usagemeter.tag:
           type: TAG
+    tester:
+      properties:
+        testerImage:
+          type: FULL
   clusterConstraints:
     resources:
     - replicas: 3
@@ -62,7 +66,7 @@ properties:
               verbs: ["get"]
         - type: Role
           rulesType: CUSTOM
-          rules:         
+          rules:
             - apiGroups: ["rbac.authorization.k8s.io", ""]
               resources: ["roles", "serviceaccounts", "rolebindings"]
               verbs: ["bind", "escalate", "impersonate", "userextras",
@@ -116,12 +120,6 @@ properties:
             - apiGroups: [""]
               resources: ["services"]
               verbs: ["get", "watch", "list", "update", "patch", "create", "delete"]
-            - apiGroups: ["policy"]
-              resources: ["podsecuritypolicies"]
-              resourceNames:
-                - redis-enterprise-psp
-              verbs:
-                - use
             - apiGroups: ["extensions"]
               resources: ["ingresses"]
               verbs: ["create", "patch", "replace", "delete",
