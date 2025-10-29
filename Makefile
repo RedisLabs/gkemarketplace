@@ -21,10 +21,10 @@ $(info ---- REGISTRY = $(REGISTRY))
 CHART_NAME := redis-operator
 $(info ---- CHART_NAME = $(CHART_NAME))
 
-REDIS_TAG ?= 7.22.2-14
+REDIS_TAG ?= 6.4.2-43
 $(info ---- REDIS_TAG = $(REDIS_TAG))
 
-OPERATOR_TAG ?= 7.22.2-21
+OPERATOR_TAG ?= 6.4.2-4
 $(info ---- OPERATOR_TAG = $(OPERATOR_TAG))
 
 # The repo to pull the operator image from Docker Hub registry.
@@ -40,6 +40,13 @@ $(info ---- OPERATOR_REPO = $(OPERATOR_REPO))
 # a marketplace-only change
 DEPLOYER_TAG ?= 6.021001
 $(info ---- DEPLOYER_TAG = $(DEPLOYER_TAG))
+
+# Override the default image tag for the deployer's base image (gcr.io/cloud-marketplace-tools/k8s/deployer_helm).
+# The default tag is defined in https://github.com/GoogleCloudPlatform/click-to-deploy/blob/master/k8s/MARKETPLACE_TOOLS_TAG,
+# and gets propagated into the Dockerfile in an absurdly convoluted way.
+# The default tag is currently hardcoded to 0.12.2, which includes multiple critical-level vulnerabiilities that prevent publishing.
+MARKETPLACE_TOOLS_TAG_OVERRIDE ?= 0.12.7
+$(info ---- MARKETPLACE_TOOLS_TAG_OVERRIDE = $(MARKETPLACE_TOOLS_TAG_OVERRIDE))
 
 # Tag the deployer image with modified version.
 APP_DEPLOYER_IMAGE := $(REGISTRY)/deployer:$(DEPLOYER_TAG)
@@ -84,7 +91,7 @@ app/build:: .build/redis-enterprise-operator/deployer \
 	    --build-arg REGISTRY="$(REGISTRY)" \
 	    --build-arg TAG="$(OPERATOR_TAG)" \
 	    --build-arg CHART_NAME="$(CHART_NAME)" \
-	    --build-arg MARKETPLACE_TOOLS_TAG="$(MARKETPLACE_TOOLS_TAG)" \
+	    --build-arg MARKETPLACE_TOOLS_TAG="$(MARKETPLACE_TOOLS_TAG_OVERRIDE)" \
 	    --tag "$(APP_DEPLOYER_IMAGE)" \
 	    -f deployer/Dockerfile \
 	    .

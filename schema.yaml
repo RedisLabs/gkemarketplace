@@ -94,8 +94,8 @@ properties:
               verbs: ["update", "get", "read", "list", "listallnamespaces",
                       "watch", "watchlist", "watchlistallnamespaces", "create",
                       "patch", "replace", "delete", "deletecollection"]
-            - apiGroups: [""]
-              resources: ["endpoints"]
+            - apiGroups: ["discovery.k8s.io"]
+              resources: ["endpointslices"]
               verbs: ["get", "list", "watch"]
             - apiGroups: [""]
               resources: ["events"]
