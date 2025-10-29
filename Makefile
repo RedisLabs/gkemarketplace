@@ -21,7 +21,7 @@ $(info ---- REGISTRY = $(REGISTRY))
 CHART_NAME := redis-operator
 $(info ---- CHART_NAME = $(CHART_NAME))
 
-REDIS_TAG ?= 8.0.2-18
+REDIS_TAG ?= 8.0.2-17
 $(info ---- REDIS_TAG = $(REDIS_TAG))
 
 OPERATOR_TAG ?= 8.0.2-2
