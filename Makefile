@@ -21,10 +21,10 @@ $(info ---- REGISTRY = $(REGISTRY))
 CHART_NAME := redis-operator
 $(info ---- CHART_NAME = $(CHART_NAME))
 
-REDIS_TAG ?= 7.22.2-14
+REDIS_TAG ?= 6.4.2-43
 $(info ---- REDIS_TAG = $(REDIS_TAG))
 
-OPERATOR_TAG ?= 7.22.2-21
+OPERATOR_TAG ?= 6.4.2-4
 $(info ---- OPERATOR_TAG = $(OPERATOR_TAG))
 
 # The repo to pull the operator image from Docker Hub registry.
@@ -32,14 +32,22 @@ OPERATOR_REPO ?= operator
 $(info ---- OPERATOR_REPO = $(OPERATOR_REPO))
 
 # Deployer tag is used for displaying versions in Producer Portal.
-# Producer Portal requires a minor version tag, and it follow the semver.org officially recommended regex: (/^(0|[1-9]\d*)\.(0|[1-9]\d*)$
+# Producer Portal requires a minor version tag, and it follows the semver.org officially recommended regex:
+# /^(0|[1-9]\d*)\.(0|[1-9]\d*)$/
 # please view: https://semver.org/#is-there-a-suggested-regular-expression-regex-to-check-a-semver-string
-# the operator tag is converted to the <major ver>.<minorver without dots><build number>
-# i.e.: 6.2.10-34 is converted to 6.2.1034.
+# The operator tag is converted to <major>.<major><minor><patch><build> to avoid leading zeros.
+# e.g.: 8.0.2-2 is converted to 8.8022
 # This can also have a different patch number from the OPERATOR_TAG to indicate
 # a marketplace-only change
 DEPLOYER_TAG ?= 6.021001
 $(info ---- DEPLOYER_TAG = $(DEPLOYER_TAG))
+
+# Override the default image tag for the deployer's base image (gcr.io/cloud-marketplace-tools/k8s/deployer_helm).
+# The default tag is defined in https://github.com/GoogleCloudPlatform/click-to-deploy/blob/master/k8s/MARKETPLACE_TOOLS_TAG,
+# and gets propagated into the Dockerfile in an absurdly convoluted way.
+# The default tag is currently hardcoded to 0.12.2, which includes multiple critical-level vulnerabiilities that prevent publishing.
+MARKETPLACE_TOOLS_TAG_OVERRIDE ?= 0.12.7
+$(info ---- MARKETPLACE_TOOLS_TAG_OVERRIDE = $(MARKETPLACE_TOOLS_TAG_OVERRIDE))
 
 # Tag the deployer image with modified version.
 APP_DEPLOYER_IMAGE := $(REGISTRY)/deployer:$(DEPLOYER_TAG)
@@ -80,11 +88,11 @@ app/build:: .build/redis-enterprise-operator/deployer \
 								  .build/var/CHART_NAME \
                                   | .build/redis-enterprise-operator
 	$(call print_target, $@)
-	docker build \
+	DOCKER_BUILDKIT=0 docker build \
 	    --build-arg REGISTRY="$(REGISTRY)" \
 	    --build-arg TAG="$(OPERATOR_TAG)" \
 	    --build-arg CHART_NAME="$(CHART_NAME)" \
-	    --build-arg MARKETPLACE_TOOLS_TAG="$(MARKETPLACE_TOOLS_TAG)" \
+	    --build-arg MARKETPLACE_TOOLS_TAG="$(MARKETPLACE_TOOLS_TAG_OVERRIDE)" \
 	    --tag "$(APP_DEPLOYER_IMAGE)" \
 	    -f deployer/Dockerfile \
 	    .
@@ -112,7 +120,7 @@ app/build:: .build/redis-enterprise-operator/deployer \
                                 | .build/redis-enterprise-operator
 	$(call print_target, $@)
 	cd usage-meter \
-	    && docker build --tag "$(REGISTRY)/usagemeter:$(OPERATOR_TAG)" .
+	    && DOCKER_BUILDKIT=0 docker build --tag "$(REGISTRY)/usagemeter:$(OPERATOR_TAG)" .
 	docker push "$(REGISTRY)/usagemeter:$(OPERATOR_TAG)"
 	@touch "$@"
 
@@ -120,6 +128,6 @@ app/build:: .build/redis-enterprise-operator/deployer \
                                 | .build/redis-enterprise-operator
 	$(call print_target, $@)
 	cd apptest/tester \
-	    && docker build --tag "$(TESTER_IMAGE)" .
+	    && DOCKER_BUILDKIT=0 docker build --tag "$(TESTER_IMAGE)" .
 	docker push "$(TESTER_IMAGE)"
 	@touch "$@"

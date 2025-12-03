@@ -61,13 +61,21 @@ spec:
               memory: 256Mi
           livenessProbe:
             failureThreshold: 3
-            successThreshold: 1
-            periodSeconds: 10
-            timeoutSeconds: 5
             httpGet:
-              path: /healthz
+              path: /liveness
               port: 8080
               scheme: HTTP
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 5
+          readinessProbe:
+            failureThreshold: 3
+            exec:
+              command: ["true"]
+            periodSeconds: 60
+            successThreshold: 1
+            timeoutSeconds: 5
+            initialDelaySeconds: 0
           securityContext:
             privileged: false
             readOnlyRootFilesystem: true
@@ -114,7 +122,7 @@ spec:
             periodSeconds: 10
             timeoutSeconds: 5
             httpGet:
-              path: /healthz
+              path: /readiness
               port: 8443
               scheme: HTTPS
           livenessProbe:
