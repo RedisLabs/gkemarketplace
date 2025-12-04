@@ -71,7 +71,7 @@ spec:
           readinessProbe:
             failureThreshold: 3
             exec:
-              command: [ "true" ]
+              command: ["true"]
             periodSeconds: 60
             successThreshold: 1
             timeoutSeconds: 5
