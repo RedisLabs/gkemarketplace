@@ -67,8 +67,13 @@ properties:
         - type: Role
           rulesType: CUSTOM
           rules:
-            - apiGroups: ["rbac.authorization.k8s.io", ""]
-              resources: ["roles", "serviceaccounts", "rolebindings"]
+            - apiGroups: ["rbac.authorization.k8s.io"]
+              resources: ["roles", "rolebindings"]
+              verbs: ["bind", "escalate", "impersonate", "userextras",
+                      "create", "get", "list", "watch", "update", "patch",
+                      "delete", "deletecollection"]
+            - apiGroups: [""]
+              resources: ["serviceaccounts"]
               verbs: ["bind", "escalate", "impersonate", "userextras",
                       "create", "get", "list", "watch", "update", "patch",
                       "delete", "deletecollection"]
