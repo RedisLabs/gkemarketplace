@@ -21,10 +21,10 @@ $(info ---- REGISTRY = $(REGISTRY))
 CHART_NAME := redis-operator
 $(info ---- CHART_NAME = $(CHART_NAME))
 
-REDIS_TAG ?= 8.0.6-54
+REDIS_TAG ?= 8.0.10-76
 $(info ---- REDIS_TAG = $(REDIS_TAG))
 
-OPERATOR_TAG ?= 8.0.6-8
+OPERATOR_TAG ?= 8.0.10-22
 $(info ---- OPERATOR_TAG = $(OPERATOR_TAG))
 
 # The repo to pull the operator image from Docker Hub registry.
