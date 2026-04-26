@@ -46,7 +46,7 @@ $(info ---- DEPLOYER_TAG = $(DEPLOYER_TAG))
 # The default tag is defined in https://github.com/GoogleCloudPlatform/click-to-deploy/blob/master/k8s/MARKETPLACE_TOOLS_TAG,
 # and gets propagated into the Dockerfile in an absurdly convoluted way.
 # The default tag is currently hardcoded to 0.12.2, which includes multiple critical-level vulnerabiilities that prevent publishing.
-MARKETPLACE_TOOLS_TAG_OVERRIDE ?= 0.12.14
+MARKETPLACE_TOOLS_TAG_OVERRIDE ?= 0.12.15
 $(info ---- MARKETPLACE_TOOLS_TAG_OVERRIDE = $(MARKETPLACE_TOOLS_TAG_OVERRIDE))
 
 # Tag the deployer image with modified version.

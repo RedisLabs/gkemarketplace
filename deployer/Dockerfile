@@ -33,9 +33,6 @@ RUN cat /tmp/apptest/schema.yaml \
 
 FROM gcr.io/cloud-marketplace-tools/k8s/deployer_helm:$MARKETPLACE_TOOLS_TAG
 
-# Fix CVE-2026-27459: upgrade pyopenssl from base image (25.3 -> >=26)
-RUN pip3 install --upgrade "pyopenssl>=26"
-
 # Fix CVE-2026-33186: replace helm binary with v4.1.4 which includes grpc fix
 RUN wget -q -O /tmp/helm.tar.gz https://get.helm.sh/helm-v4.1.4-linux-amd64.tar.gz \
     && tar -zxf /tmp/helm.tar.gz -C /tmp \
