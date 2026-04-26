@@ -21,10 +21,10 @@ $(info ---- REGISTRY = $(REGISTRY))
 CHART_NAME := redis-operator
 $(info ---- CHART_NAME = $(CHART_NAME))
 
-REDIS_TAG ?= 8.0.10-81
+REDIS_TAG ?= 6.4.2-43
 $(info ---- REDIS_TAG = $(REDIS_TAG))
 
-OPERATOR_TAG ?= 8.0.10-23
+OPERATOR_TAG ?= 6.4.2-4
 $(info ---- OPERATOR_TAG = $(OPERATOR_TAG))
 
 # The repo to pull the operator image from Docker Hub registry.
@@ -46,7 +46,7 @@ $(info ---- DEPLOYER_TAG = $(DEPLOYER_TAG))
 # The default tag is defined in https://github.com/GoogleCloudPlatform/click-to-deploy/blob/master/k8s/MARKETPLACE_TOOLS_TAG,
 # and gets propagated into the Dockerfile in an absurdly convoluted way.
 # The default tag is currently hardcoded to 0.12.2, which includes multiple critical-level vulnerabiilities that prevent publishing.
-MARKETPLACE_TOOLS_TAG_OVERRIDE ?= 0.12.7
+MARKETPLACE_TOOLS_TAG_OVERRIDE ?= 0.12.14
 $(info ---- MARKETPLACE_TOOLS_TAG_OVERRIDE = $(MARKETPLACE_TOOLS_TAG_OVERRIDE))
 
 # Tag the deployer image with modified version.
