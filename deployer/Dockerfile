@@ -33,6 +33,23 @@ RUN cat /tmp/apptest/schema.yaml \
 
 FROM gcr.io/cloud-marketplace-tools/k8s/deployer_helm:$MARKETPLACE_TOOLS_TAG
 
+# Fix CVE-2026-33186: replace helm binary with v4.1.4 which includes grpc fix
+RUN wget -q -O /tmp/helm.tar.gz https://get.helm.sh/helm-v4.1.4-linux-amd64.tar.gz \
+    && tar -zxf /tmp/helm.tar.gz -C /tmp \
+    && mv /tmp/linux-amd64/helm /bin/helm \
+    && rm -rf /tmp/helm.tar.gz /tmp/linux-amd64
+
+# RED-193212 - Install additional kubectl versions to avoid version skew warnings.
+# The base image includes a wrapper script (/usr/bin/kubectl) that selects the best
+# kubectl binary from /opt/kubectl/ based on the server version (±1 minor).
+# Base image ships with 1.30 and 1.31. To support newer GKE versions, add versions here.
+ARG KUBECTL_VERSIONS="1.34 1.35"
+RUN for v in $KUBECTL_VERSIONS; do \
+        mkdir -p "/opt/kubectl/$v"; \
+        wget -q -O "/opt/kubectl/$v/kubectl" "https://dl.k8s.io/release/v${v}.0/bin/linux/amd64/kubectl"; \
+        chmod +x "/opt/kubectl/$v/kubectl"; \
+    done
+
 ARG CHART_NAME
 
 ENV WAIT_FOR_READY_TIMEOUT 3600
