@@ -21,10 +21,10 @@ $(info ---- REGISTRY = $(REGISTRY))
 CHART_NAME := redis-operator
 $(info ---- CHART_NAME = $(CHART_NAME))
 
-REDIS_TAG ?= 8.0.18-23
+REDIS_TAG ?= 8.0.18-36
 $(info ---- REDIS_TAG = $(REDIS_TAG))
 
-OPERATOR_TAG ?= 8.0.18-11
+OPERATOR_TAG ?= 8.0.18-14
 $(info ---- OPERATOR_TAG = $(OPERATOR_TAG))
 
 # The repo to pull the operator image from Docker Hub registry.
@@ -39,7 +39,7 @@ $(info ---- OPERATOR_REPO = $(OPERATOR_REPO))
 # e.g.: 8.0.2-2 is converted to 8.8022
 # This can also have a different patch number from the OPERATOR_TAG to indicate
 # a marketplace-only change
-DEPLOYER_TAG ?= 8.801811
+DEPLOYER_TAG ?=  8.801814
 $(info ---- DEPLOYER_TAG = $(DEPLOYER_TAG))
 
 # Override the default image tag for the deployer's base image (gcr.io/cloud-marketplace-tools/k8s/deployer_helm).
