@@ -93,8 +93,8 @@ Example: `8.0.2-2` → `8.8022`
 ```shell
 export APP_INSTANCE_NAME=redis-enterprise-operator
 export NAMESPACE=redis
-export TAG=6.4.2-4
-export DEPLOYER_TAG=6.6424
+export TAG=8.2.0-12
+export DEPLOYER_TAG=8.2012
 export REPO=gcr.io/cloud-marketplace/redislabs-public/redis-enterprise
 ```
 
