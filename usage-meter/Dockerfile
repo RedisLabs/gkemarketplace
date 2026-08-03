@@ -1,11 +1,12 @@
 FROM registry.access.redhat.com/ubi8-minimal
 
-# Update base packages.
-RUN microdnf update -y
+# Update base packages to pull the latest RHSA-patched OS packages.
+RUN microdnf update -y && microdnf clean all
 
-# Install python 3.8 and requirements.
+# Install python 3.8 and requirements. Upgrade pip and the python deps so we don't
+# ship stale, vulnerable versions.
 RUN microdnf install python38 && \
-    pip3 install kubernetes requests && \
+    pip3 install --upgrade pip kubernetes requests && \
     microdnf remove python38-setuptools python38-pip
 
 # Setup the usage-meter app.
