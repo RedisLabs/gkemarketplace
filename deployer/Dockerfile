@@ -61,7 +61,6 @@ COPY --from=build /tmp/apptest/schema.yaml /data-test/
 COPY --from=build /tmp/schema.yaml /data/
 
 RUN mkdir -p /crd_to_create
-ADD deployer/rec_crd.yaml /crd_to_create/rec_crd.yaml
-ADD deployer/redb_crd.yaml /crd_to_create/redb_crd.yaml
-ADD deployer/rerc_crd.yaml /crd_to_create/rerc_crd.yaml
-ADD deployer/reaadb_crd.yaml /crd_to_create/reaadb_crd.yaml
+# Install all CRDs staged into the build context (synced from deploy/crds), so the
+# operator's full CRD set is always installed without maintaining a list here.
+ADD deployer/*_crd.yaml /crd_to_create/
