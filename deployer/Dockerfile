@@ -1,5 +1,22 @@
 ARG MARKETPLACE_TOOLS_TAG
 
+FROM golang:1.26.6-bookworm AS kubectl-134-build
+
+ARG KUBECTL_134_VERSION=1.34.12
+ARG KUBECTL_134_COMMIT=26c89157669bdc7e3657302bc1abde758507095b
+
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends rsync \
+    && rm -rf /var/lib/apt/lists/*
+
+RUN git clone --depth 1 --branch "v${KUBECTL_134_VERSION}" \
+        https://github.com/kubernetes/kubernetes.git /src/kubernetes \
+    && test "$(git -C /src/kubernetes rev-parse HEAD)" = "${KUBECTL_134_COMMIT}" \
+    && cd /src/kubernetes \
+    && GOTOOLCHAIN=local make WHAT=cmd/kubectl \
+    && install -Dm755 _output/bin/kubectl /out/kubectl \
+    && go version -m /out/kubectl | grep -q '^/out/kubectl: go1.26.6$'
+
 FROM marketplace.gcr.io/google/debian12 AS build
 
 ARG CHART_NAME
@@ -33,19 +50,14 @@ RUN cat /tmp/apptest/schema.yaml \
 
 FROM gcr.io/cloud-marketplace-tools/k8s/deployer_helm:$MARKETPLACE_TOOLS_TAG
 
-# RED-193212 - Install additional kubectl versions to avoid version skew warnings.
-# The base image includes a wrapper script (/usr/bin/kubectl) that selects the best
-# kubectl binary from /opt/kubectl/<major>.<minor>/ based on the server version (±1 minor).
-# Kubernetes 1.33 remains supported, so keep kubectl 1.34 available as its
-# compatible next-minor client. Include kubectl 1.36 for Kubernetes 1.36 and
-# upcoming 1.37 support. Use full patch versions here (x.y.z, not x.y.0).
-ARG KUBECTL_VERSIONS="1.34.12 1.35.9 1.36.5"
+ARG KUBECTL_VERSIONS="1.35.9 1.36.5"
 RUN for v in $KUBECTL_VERSIONS; do \
         minor="${v%.*}"; \
         mkdir -p "/opt/kubectl/$minor"; \
         wget -q -O "/opt/kubectl/$minor/kubectl" "https://dl.k8s.io/release/v${v}/bin/linux/amd64/kubectl"; \
         chmod +x "/opt/kubectl/$minor/kubectl"; \
     done
+COPY --from=kubectl-134-build /out/kubectl /opt/kubectl/1.34/kubectl
 
 ARG CHART_NAME
 
