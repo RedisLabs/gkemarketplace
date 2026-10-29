@@ -1,19 +1,16 @@
-FROM gcr.io/cloud-marketplace-tools/testrunner:0.1.8
+# The smoke checks only need shell tools; the old testrunner base bundled an
+# outdated Go binary that was only used to run these checks.
+FROM debian:bookworm-slim
 
-ENV WAIT_FOR_READY_TIMEOUT=3600
-ENV TESTER_TIMEOUT=3600
-
-# Upgrade base-image packages to patch CVEs shipped in the testrunner base.
 RUN apt-get update && \
     apt-get upgrade -y && \
     apt-get install -y --no-install-recommends \
-    curl wget dnsutils netcat-openbsd jq ca-certificates \
+    bash ca-certificates coreutils curl \
     && rm -rf /var/lib/apt/lists/*
 
 RUN curl -Lo /usr/local/bin/kubectl "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
 RUN chmod +x /usr/local/bin/kubectl
 
-COPY tests/basic-suite.yaml /tests/basic-suite.yaml
 COPY tester.sh /tester.sh
 
 WORKDIR /

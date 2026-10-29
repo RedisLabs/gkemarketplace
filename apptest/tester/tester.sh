@@ -14,9 +14,32 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-set -xeo pipefail
-shopt -s nullglob
+set -euo pipefail
 
-for test in /tests/*; do
-  testrunner -logtostderr "--test_spec=${test}"
-done
+: "${NAMESPACE:?NAMESPACE must be set by the tester pod}"
+
+kubectl version
+
+timeout 300 bash -c '
+  until kubectl get crd redisenterpriseclusters.app.redislabs.com; do
+    echo "Waiting for RedisEnterpriseClusters CRD"
+    sleep 5
+  done
+'
+
+timeout 600 bash -c '
+  state=""
+  until [ "$state" = "Running" ]; do
+    echo "Waiting for Redis Enterprise cluster to be running"
+    state=$(kubectl get -n "$NAMESPACE" rec/redis-enterprise -o jsonpath="{.status.state}" 2>/dev/null || true)
+    sleep 5
+  done
+'
+
+timeout 1200 bash -c '
+  set -e
+  kubectl delete -n "$NAMESPACE" rec/redis-enterprise
+  sleep 60
+  kubectl delete -n "$NAMESPACE" deployment.apps/redis-enterprise-operator
+  sleep 60
+'
